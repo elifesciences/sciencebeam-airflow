@@ -1,0 +1,5 @@
+venv
+helm
+.pytest_cache
+
+*.pyc

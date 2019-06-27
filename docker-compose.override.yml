@@ -1,0 +1,55 @@
+version: '3.4'
+
+services:
+  init:
+    build:
+      context: ./docker/init
+      dockerfile: Dockerfile
+    image: ${AIRFLOW_IMAGE_NAME}-init:${IMAGE_TAG}
+    volumes:
+      - config-gcloud:/root/volume-config-gcloud
+      - ~/.config/gcloud:/root/user-config-gcloud
+      - config-kube:/root/volume-config-kube
+      - ~/.kube:/root/user-config-kube
+
+  airflow-dev:
+    volumes:
+      - ./dags:/usr/local/airflow/dags
+      - ./tests:/usr/local/airflow/tests
+
+  airflow-webserver:
+    volumes:
+      - ./dags:/usr/local/airflow/dags
+      - config-gcloud:/usr/local/airflow/.config/gcloud
+      - config-kube:/usr/local/airflow/.kube
+    depends_on:
+      - init
+    environment:
+      - AIRFLOW__SCHEDULER__DAG_DIR_LIST_INTERVAL=1
+      - AIRFLOW__SCHEDULER__MIN_FILE_PROCESS_INTERVAL=1
+
+  airflow-scheduler:
+    volumes:
+      - ./dags:/usr/local/airflow/dags
+      - config-gcloud:/usr/local/airflow/.config/gcloud
+      - config-kube:/usr/local/airflow/.kube
+    depends_on:
+      - init
+    environment:
+      - AIRFLOW__SCHEDULER__DAG_DIR_LIST_INTERVAL=1
+      - AIRFLOW__SCHEDULER__MIN_FILE_PROCESS_INTERVAL=1
+
+  airflow-worker:
+    volumes:
+      - ./dags:/usr/local/airflow/dags
+      - config-gcloud:/usr/local/airflow/.config/gcloud
+      - config-kube:/usr/local/airflow/.kube
+    depends_on:
+      - init
+    environment:
+      - AIRFLOW__SCHEDULER__DAG_DIR_LIST_INTERVAL=1
+      - AIRFLOW__SCHEDULER__MIN_FILE_PROCESS_INTERVAL=1
+
+volumes:
+  config-gcloud:
+  config-kube:
