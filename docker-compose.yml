@@ -1,0 +1,105 @@
+version: '3.4'
+
+x-airflow-env:
+  &airflow-env
+  - LOAD_EX=n
+  - FERNET_KEY=${FERNET_KEY}
+  - EXECUTOR=Celery
+  - POSTGRES_HOST=airflow-postgres
+  - REDIS_HOST=airflow-redis
+  - SCIENCEBEAM_NAMESPACE=${SCIENCEBEAM_NAMESPACE}
+  - SCIENCEBEAM_CONFIG_DATA_PATH=${SCIENCEBEAM_CONFIG_DATA_PATH}
+  - SCIENCEBEAM_JUDGE_IMAGE=${SCIENCEBEAM_JUDGE_IMAGE}
+  - SCIENCEBEAM_DEFAULT_LIMIT=${SCIENCEBEAM_DEFAULT_LIMIT}
+  - SCIENCEBEAM_WATCH_INTERVAL=${SCIENCEBEAM_WATCH_INTERVAL}
+  - GOOGLE_CLOUD_PROJECT=${SCIENCEBEAM_GCP_PROJECT}
+
+services:
+  airflow-image:
+    build:
+      context: .
+    image: ${AIRFLOW_IMAGE_NAME}:${IMAGE_TAG}
+    command: /bin/sh -c exit 0
+
+  airflow-dev-base-image:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        install_dev: y
+    image: ${AIRFLOW_IMAGE_NAME}-dev-base:${IMAGE_TAG}
+
+  airflow-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+      args:
+        base_image: ${AIRFLOW_IMAGE_NAME}-dev-base:${IMAGE_TAG}
+    image: ${AIRFLOW_IMAGE_NAME}-dev:${IMAGE_TAG}
+    command: /bin/sh -c exit 0
+    depends_on:
+      - airflow-dev-base-image
+    entrypoint: []
+    environment: *airflow-env
+
+  airflow-redis:
+    image: 'bitnami/redis:4.0.14'
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+
+  airflow-flower:
+    image: ${AIRFLOW_IMAGE_NAME}:${IMAGE_TAG}
+    depends_on:
+      - airflow-image
+      - airflow-redis
+    environment: *airflow-env
+    ports:
+      - "5555:5555"
+    command: flower
+
+  airflow-postgres:
+    image: postgres:9.6.8-alpine
+    environment:
+      - POSTGRES_USER=airflow
+      - POSTGRES_PASSWORD=airflow
+      - POSTGRES_DB=airflow
+      - PGDATA=/var/lib/postgresql/data
+    volumes:
+      - airflow-postgres:/var/lib/postgresql/data
+
+  airflow-webserver:
+    image: ${AIRFLOW_IMAGE_NAME}:${IMAGE_TAG}
+    depends_on:
+      - airflow-image
+      - airflow-postgres
+      - airflow-redis
+    environment: *airflow-env
+    ports:
+      - "8080:8080"
+    command: webserver
+    healthcheck:
+      test: ["CMD-SHELL", "[ -f /usr/local/airflow/airflow-webserver.pid ]"]
+      interval: 30s
+      timeout: 30s
+      retries: 3
+
+  airflow-scheduler:
+    image: ${AIRFLOW_IMAGE_NAME}:${IMAGE_TAG}
+    depends_on:
+      - airflow-image
+      - airflow-webserver
+    environment: *airflow-env
+    command: scheduler
+
+  airflow-worker:
+    image: ${AIRFLOW_IMAGE_NAME}:${IMAGE_TAG}
+    depends_on:
+      - airflow-image
+      - airflow-scheduler
+    environment: *airflow-env
+    command: worker
+
+
+volumes:
+  airflow-postgres:
+  postgres-data:
