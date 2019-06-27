@@ -9,7 +9,7 @@ elifePipeline {
 
         stage 'Build and run tests', {
             try {
-                sh "make ci-build-and-test"
+                sh "make IMAGE_TAG=${commit} ci-build-and-test"
             } finally {
                 sh "make ci-clean"
             }
