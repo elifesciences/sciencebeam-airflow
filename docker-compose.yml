@@ -28,6 +28,8 @@ services:
       args:
         install_dev: y
     image: ${AIRFLOW_IMAGE_NAME}-dev-base:${IMAGE_TAG}
+    command: /bin/sh -c exit 0
+    entrypoint: []
 
   airflow-dev:
     build:
