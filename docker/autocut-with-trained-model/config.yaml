@@ -1,0 +1,14 @@
+steps:
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['build',
+         '--build-arg',
+         'base_image=${_BASE_IMAGE}',
+         '-t',
+         '${_IMAGE}',
+         '.']
+substitutions:
+    _BASE_IMAGE: ''
+    _IMAGE: ''
+images: [
+    '${_IMAGE}'
+]
