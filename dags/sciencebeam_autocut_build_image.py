@@ -11,8 +11,6 @@ from sciencebeam_dag_utils import (
     get_sciencebeam_gym_image
 )
 
-from container_operators import ContainerRunOperator
-
 
 class ConfigProps:
     SCIENCEBEAM_RELEASE_NAME = 'sciencebeam_release_name'
