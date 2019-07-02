@@ -90,24 +90,27 @@ helm-charts-clone:
 	fi
 
 
-copy-helm-charts:
+helm-charts-copy:
 	mkdir -p ./helm
 	cp -r --dereference "$(SCIENCEBEAM_CHARTS_DIR)"/* ./helm/
 
 
-updated-helm-charts:
+helm-charts-get:
 	@if [ -d "$(SCIENCEBEAM_CHARTS_DIR)" ]; then \
-		$(MAKE) copy-helm-charts; \
+		$(MAKE) helm-charts-copy; \
 	else \
 		$(MAKE) helm-charts-clone; \
 	fi
 
 
-build: updated-helm-charts
+helm-charts-update: helm-charts-get
+
+
+build: helm-charts-update
 	$(DOCKER_COMPOSE) build airflow-image
 
 
-build-dev: updated-helm-charts
+build-dev: helm-charts-update
 	# only dev compose file has "init" service defined
 	@if [ "$(DOCKER_COMPOSE)" = "$(DOCKER_COMPOSE_DEV)" ]; then \
 		$(DOCKER_COMPOSE) build init; \
@@ -123,7 +126,7 @@ watch: build-dev
 	$(DOCKER_COMPOSE) run --rm airflow-dev python -m pytest_watch
 
 
-start: updated-helm-charts
+start: helm-charts-update
 	$(eval SERVICE_NAMES = $(shell docker-compose config --services | grep -v 'airflow-dev'))
 	$(DOCKER_COMPOSE) up --build -d --scale airflow-worker=2 $(SERVICE_NAMES)
 
