@@ -67,12 +67,12 @@ if [ -z "${GCP_PROJECT}" ]; then
         "${temp_build_dir}"
 else
     echo "build image using gcloud build: $OUTPUT_AUTOCUT_IMAGE"
-    subsitutions="_BASE_IMAGE=${SOURCE_AUTOCUT_IMAGE},_IMAGE=${OUTPUT_AUTOCUT_IMAGE}"
-    subsitutions="${subsitutions},_DOCKER_HUB_USERNAME=${DOCKER_HUB_USERNAME}"
-    subsitutions="${subsitutions},_DOCKER_HUB_PASSWORD=${DOCKER_HUB_PASSWORD}"
+    substitutions="_BASE_IMAGE=${SOURCE_AUTOCUT_IMAGE},_IMAGE=${OUTPUT_AUTOCUT_IMAGE}"
+    substitutions="${substitutions},_DOCKER_HUB_USERNAME=${DOCKER_HUB_USERNAME}"
+    substitutions="${substitutions},_DOCKER_HUB_PASSWORD=${DOCKER_HUB_PASSWORD}"
     gcloud builds submit --project "${GCP_PROJECT}" \
         --config "${SCRIPT_HOME}/config.yaml" \
-        --substitutions "${subsitutions}" \
+        --substitutions "${substitutions}" \
         "${temp_build_dir}"
 fi
 
