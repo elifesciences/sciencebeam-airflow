@@ -353,7 +353,8 @@ trigger-grobid-train-evaluate-source-dataset: .run_id .grobid-train-conf
 				"grobid.crossref.enabled": "$(GROBID_CROSSREF_ENABLED)", \
 				"sciencebeam.pipeline": "grobid\\\\,sciencebeam_autocut", \
 				"sciencebeam_autocut.enabled": "true", \
-				"sciencebeam-autocut.autocut.modelPath": "$(AUTOCUT_TRAINED_MODEL_PATH)" \
+				"sciencebeam-autocut.image.repository": "$(AUTOCUT_TRAINED_MODEL_IMAGE_REPO)", \
+				"sciencebeam-autocut.image.tag": "$(AUTOCUT_TRAINED_MODEL_IMAGE_TAG)" \
 			} \
 		}, \
 		"gcp_project": "$(GCP_PROJECT)", \
@@ -375,12 +376,14 @@ trigger-grobid-train-evaluate-source-dataset: .run_id .grobid-train-conf
 					"xpath": "tei:teiHeader/tei:fileDesc/tei:titleStmt/tei:title", \
 					"file_list": "$(GROBID_OUTPUT_DATA_PATH)/$(OUTPUT_TRAIN_FILE_LIST)" \
 				}, \
+				"output_image": "$(AUTOCUT_TRAINED_MODEL_IMAGE)", \
 				"model": "$(AUTOCUT_TRAINED_MODEL_PATH)" \
 			} \
 		}, \
 		"tasks": [ \
 			"sciencebeam_autocut_convert_training_data", \
 			"sciencebeam_autocut_train_model", \
+			"sciencebeam_autocut_build_image", \
 			"sciencebeam_convert", \
 			"sciencebeam_evaluate", \
 			"sciencebeam_evaluation_results_to_bq", \
@@ -403,6 +406,13 @@ trigger-sciencebeam-autocut-train-model: .run_id .sciencebeam-autocut-train-conf
 		--run_id "$(RUN_ID)" \
 		--conf "$$SCIENCEBEAM_AUTOCUT_TRAIN_CONF" \
 		sciencebeam_autocut_train_model
+
+
+trigger-sciencebeam-autocut-build-image: .run_id .sciencebeam-autocut-train-conf
+	docker-compose exec airflow-webserver /entrypoint.sh airflow trigger_dag \
+		--run_id "$(RUN_ID)" \
+		--conf "$$SCIENCEBEAM_AUTOCUT_TRAIN_CONF" \
+		sciencebeam_autocut_build_image
 
 
 trigger-sciencebeam-autocut-convert-and-evaluate: .run_id .sciencebeam-autocut-train-conf

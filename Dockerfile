@@ -35,5 +35,8 @@ RUN if [ "${install_dev}" = "y" ]; then pip install --user -r requirements.dev.t
 
 COPY --chown=airflow:airflow dags ./dags
 
+ENV DOCKER_SCRIPTS_DIR=/usr/local/airflow/docker
+COPY --chown=airflow:airflow docker "${DOCKER_SCRIPTS_DIR}"
+
 ENV HELM_CHARTS_DIR=/usr/local/airflow/helm
 COPY --chown=airflow:airflow helm ${HELM_CHARTS_DIR}

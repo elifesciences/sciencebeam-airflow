@@ -11,6 +11,7 @@ class ScienceBeamDagIds:
     SCIENCEBEAM_EVALUATION_RESULTS_TO_BQ = 'sciencebeam_evaluation_results_to_bq'
     SCIENCEBEAM_AUTOCUT_CONVERT_TRAINING_DATA = 'sciencebeam_autocut_convert_training_data'
     SCIENCEBEAM_AUTOCUT_TRAIN_MODEL = 'sciencebeam_autocut_train_model'
+    SCIENCEBEAM_AUTOCUT_BUILD_IMAGE = 'sciencebeam_autocut_build_image'
 
 
 DEFAULT_EVALUATE_TASKS = [
