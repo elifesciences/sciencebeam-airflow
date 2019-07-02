@@ -3,7 +3,7 @@ FROM puckel/docker-airflow:1.10.2
 USER root
 
 ENV KUBE_VERSION="v1.13.4"
-ENV HELM_VERSION="v2.13.0"
+ENV HELM_VERSION="v2.14.1"
 
 # Mostly copied from https://github.com/dtzar/helm-kubectl/blob/master/Dockerfile
 RUN curl -q https://storage.googleapis.com/kubernetes-release/release/${KUBE_VERSION}/bin/linux/amd64/kubectl -o /usr/local/bin/kubectl \
@@ -34,6 +34,9 @@ COPY --chown=airflow:airflow requirements.dev.txt ./
 RUN if [ "${install_dev}" = "y" ]; then pip install --user -r requirements.dev.txt; fi
 
 COPY --chown=airflow:airflow dags ./dags
+
+ENV DOCKER_SCRIPTS_DIR=/usr/local/airflow/docker
+COPY --chown=airflow:airflow docker "${DOCKER_SCRIPTS_DIR}"
 
 ENV HELM_CHARTS_DIR=/usr/local/airflow/helm
 COPY --chown=airflow:airflow helm ${HELM_CHARTS_DIR}
