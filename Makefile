@@ -85,6 +85,7 @@ dev-venv:
 helm-charts-clone:
 	@if [ -d 'helm' ]; then \
 		echo '"helm" directory already exists, not cloning'; \
+		cd helm && git pull; \
 	else \
 		git clone https://github.com/elifesciences/sciencebeam-charts.git helm; \
 	fi
