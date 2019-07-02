@@ -18,7 +18,12 @@ RUN mkdir -p /usr/local/gcloud \
     && /usr/local/gcloud/google-cloud-sdk/install.sh
 
 # gcloud sdk cli only works with Python 2 (in 2019)
-RUN apt-get update && apt-get install --yes python2.7-minimal
+# also install jq (for docker image build script)
+RUN apt-get update \
+  && apt-get install --assume-yes --no-install-recommends \
+    python2.7-minimal libpython2.7-stdlib \
+    jq \
+  && rm -rf /var/lib/apt/lists/*
 
 USER airflow
 

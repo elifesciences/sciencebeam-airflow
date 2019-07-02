@@ -6,6 +6,7 @@ AUTOCUT_MODEL_URL=${1:-$AUTOCUT_MODEL_URL}
 SOURCE_AUTOCUT_IMAGE=${2:-$SOURCE_AUTOCUT_IMAGE}
 OUTPUT_AUTOCUT_IMAGE=${3:-$OUTPUT_AUTOCUT_IMAGE}
 GCP_PROJECT=${4:-$GCP_PROJECT}
+DOCKER_HUB_CREDENTIALS_URL=${4:-$DOCKER_HUB_CREDENTIALS_URL}
 
 if [ -z "${AUTOCUT_MODEL_URL}" ]; then
     echo "Error: AUTOCUT_MODEL_URL required"
@@ -28,7 +29,16 @@ echo "AUTOCUT_MODEL_URL=${AUTOCUT_MODEL_URL}"
 echo "SOURCE_AUTOCUT_IMAGE=${SOURCE_AUTOCUT_IMAGE}"
 echo "OUTPUT_AUTOCUT_IMAGE=${OUTPUT_AUTOCUT_IMAGE}"
 echo "GCP_PROJECT=${GCP_PROJECT}"
+echo "DOCKER_HUB_CREDENTIALS_URL=${DOCKER_HUB_CREDENTIALS_URL}"
 echo "SCRIPT_HOME=${SCRIPT_HOME}"
+
+if [[ "${OUTPUT_AUTOCUT_IMAGE}" == gcr.io/* ]]; then
+    echo "Output image using Google Container registry"
+    if [ ! -z "${DOCKER_HUB_CREDENTIALS_URL}" ]; then
+        echo "No need to use Docker Hub credentials, ignoring"
+        DOCKER_HUB_CREDENTIALS_URL=""
+    fi
+fi
 
 temp_build_dir=/tmp/autocut-trained-model-build
 echo "temp_build_dir=${temp_build_dir}"
@@ -42,6 +52,13 @@ OUTPUT_MODEL_FILENAME="${temp_build_dir}/${MODEL_FILENAME}"
 echo "copying ${AUTOCUT_MODEL_URL} to ${OUTPUT_MODEL_FILENAME}"
 gsutil cp "${AUTOCUT_MODEL_URL}" "${OUTPUT_MODEL_FILENAME}"
 
+if [ ! -z "${DOCKER_HUB_CREDENTIALS_URL}" ]; then
+    DOCKER_HUB_CREDENTIALS_JSON="$(gsutil cat "${DOCKER_HUB_CREDENTIALS_URL}")"
+    DOCKER_HUB_USERNAME="$(echo "${DOCKER_HUB_CREDENTIALS_JSON}" | jq -r '.username')"
+    DOCKER_HUB_PASSWORD="$(echo "${DOCKER_HUB_CREDENTIALS_JSON}" | jq -r '.password')"
+    echo "DOCKER_HUB_USERNAME=${DOCKER_HUB_USERNAME}"
+fi
+
 if [ -z "${GCP_PROJECT}" ]; then
     echo "build local image: $OUTPUT_AUTOCUT_IMAGE"
     docker build \
@@ -50,8 +67,12 @@ if [ -z "${GCP_PROJECT}" ]; then
         "${temp_build_dir}"
 else
     echo "build image using gcloud build: $OUTPUT_AUTOCUT_IMAGE"
+    substitutions="_BASE_IMAGE=${SOURCE_AUTOCUT_IMAGE},_IMAGE=${OUTPUT_AUTOCUT_IMAGE}"
+    substitutions="${substitutions},_DOCKER_HUB_USERNAME=${DOCKER_HUB_USERNAME}"
+    substitutions="${substitutions},_DOCKER_HUB_PASSWORD=${DOCKER_HUB_PASSWORD}"
     gcloud builds submit --project "${GCP_PROJECT}" \
         --config "${SCRIPT_HOME}/config.yaml" \
-        --substitutions "_BASE_IMAGE=${SOURCE_AUTOCUT_IMAGE},_IMAGE=${OUTPUT_AUTOCUT_IMAGE}" \
+        --substitutions "${substitutions}" \
         "${temp_build_dir}"
 fi
+
