@@ -3,7 +3,7 @@ FROM puckel/docker-airflow:1.10.2
 USER root
 
 ENV KUBE_VERSION="v1.13.4"
-ENV HELM_VERSION="v2.13.0"
+ENV HELM_VERSION="v2.14.1"
 
 # Mostly copied from https://github.com/dtzar/helm-kubectl/blob/master/Dockerfile
 RUN curl -q https://storage.googleapis.com/kubernetes-release/release/${KUBE_VERSION}/bin/linux/amd64/kubectl -o /usr/local/bin/kubectl \
