@@ -103,11 +103,7 @@ helm-charts-get:
 	fi
 
 
-helm-charts-sciencebeam-dependency-update:
-	cd ./helm/sciencebeam && helm dep update
-
-
-helm-charts-update: helm-charts-get helm-charts-sciencebeam-dependency-update
+helm-charts-update: helm-charts-get
 
 
 build: helm-charts-update

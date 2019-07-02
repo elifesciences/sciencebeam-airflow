@@ -45,3 +45,6 @@ COPY --chown=airflow:airflow docker "${DOCKER_SCRIPTS_DIR}"
 
 ENV HELM_CHARTS_DIR=/usr/local/airflow/helm
 COPY --chown=airflow:airflow helm ${HELM_CHARTS_DIR}
+RUN cd ${HELM_CHARTS_DIR}/sciencebeam \
+  && helm init --client-only \
+  && helm dep update
