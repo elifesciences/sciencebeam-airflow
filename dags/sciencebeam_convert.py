@@ -46,6 +46,7 @@ DEFAULT_ARGS = get_default_args()
 
 DEPLOY_SCIENCEBEAM_ARGS_TEMPLATE = (
     '''
+    --timeout 600 \
     --set "fullnameOverride={{ dag_run.conf.sciencebeam_release_name }}-sb" \
     {% for key, value in get_sciencebeam_deploy_args(dag_run.conf).items() %} \
         --set "{{ key }}={{ value }}" \
