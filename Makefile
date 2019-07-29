@@ -68,6 +68,8 @@ AUTOCUT_SCIENCEBEAM_ARGS =
 AUTOCUT_OUTPUT_DATA_PATH = $(BASE_OUTPUT_DATA_PATH)/$(AUTOCUT_TRAINED_MODEL_NAME)
 AUTOCUT_EVAL_OUTPUT_PATH = $(AUTOCUT_OUTPUT_DATA_PATH)/evaluation-results
 
+SCIENCEBEAM_CHARTS_COMMIT = $(shell bash -c 'source .env && echo $$SCIENCEBEAM_CHARTS_COMMIT')
+
 
 dev-venv:
 	rm -rf venv || true
@@ -83,12 +85,10 @@ dev-venv:
 
 
 helm-charts-clone:
-	@if [ -d 'helm' ]; then \
-		echo '"helm" directory already exists, not cloning'; \
-		cd helm && git pull; \
-	else \
+	@if [ ! -d 'helm' ]; then \
 		git clone https://github.com/elifesciences/sciencebeam-charts.git helm; \
 	fi
+	cd helm && git fetch && git checkout $(SCIENCEBEAM_CHARTS_COMMIT)
 
 
 helm-charts-copy:
