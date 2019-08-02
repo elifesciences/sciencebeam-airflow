@@ -66,6 +66,8 @@ AUTOCUT_TRAIN_CONFIG_1 = {
 UNKNOWN_TRAIN_CONFIG_1 = {'xyz': {'dummy_train_config': {}}}
 TRAIN_CONFIG_1 = GROBID_TRAIN_CONFIG_1
 
+CUSTOM_CONFIG_1 = {'custom': {}}
+
 
 @pytest.fixture(name='file_exists', autouse=True)
 def _file_exists_mock():
@@ -280,6 +282,12 @@ class TestScienceBeamWatchExperiments:
                 **DEFAULT_EXPERIMENT_DATA,
                 'train': TRAIN_CONFIG_1
             })['train'] == TRAIN_CONFIG_1
+
+        def test_should_include_config_property(self):
+            assert get_conf_for_experiment_data({
+                **DEFAULT_EXPERIMENT_DATA,
+                'config': CUSTOM_CONFIG_1
+            })['config'] == CUSTOM_CONFIG_1
 
         def test_should_include_image_config(self):
             assert get_conf_for_experiment_data({
