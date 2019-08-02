@@ -12,7 +12,8 @@ from sciencebeam_dag_utils import (
     get_default_args,
     create_validate_config_operation,
     create_trigger_next_task_dag_operator,
-    add_dag_macros
+    add_dag_macros,
+    get_sciencebeam_image
 )
 
 from container_operators import ContainerRunOperator, HelmDeployOperator
@@ -44,6 +45,10 @@ REQUIRED_PROPS = {
 DEFAULT_ARGS = get_default_args()
 
 
+DEFAULT_WORKER_COUNT = 10
+DEFAULT_REPLICA_COUNT = 0  # don't set replica by default
+
+
 DEPLOY_SCIENCEBEAM_ARGS_TEMPLATE = (
     '''
     --timeout 600 \
@@ -64,7 +69,7 @@ DELETE_SCIENCEBEAM_TEMPLATE = (
 
 SCIENCEBEAM_CONVERT_TEMPLATE = (
     '''
-    python -m sciencebeam.pipeline_runners.beam_pipeline_runner \
+    python -m sciencebeam.pipeline_runners.local_pipeline_runner \
         --data-path "{{ get_source_conf(dag_run.conf).data_path }}" \
         --source-file-list "{{ get_source_conf(dag_run.conf).file_list }}" \
         --source-file-column "{{ get_source_conf(dag_run.conf).file_column }}" \
@@ -75,7 +80,8 @@ SCIENCEBEAM_CONVERT_TEMPLATE = (
         {% if dag_run.conf.resume %} \
             --resume \
         {% endif %} \
-        --limit "{{ get_limit(dag_run.conf) }}"
+        --limit "{{ get_limit(dag_run.conf) }}" \
+        --num-workers "{{ get_worker_count(dag_run.conf) }}"
     '''
 )
 
@@ -152,15 +158,37 @@ class ScienceBeamConvertMacros:
     def get_limit(self, conf: dict) -> str:
         return conf['limit']
 
+    def get_convert_config(self, conf: dict) -> dict:
+        return conf.get('config', {}).get('convert', {})
+
+    def get_worker_count(self, conf: dict) -> str:
+        return int(self.get_convert_config(conf).get('worker_count', DEFAULT_WORKER_COUNT))
+
+    def get_replica_count(self, conf: dict) -> str:
+        return int(self.get_convert_config(conf).get('replica_count', DEFAULT_REPLICA_COUNT))
+
+    def get_base_sciencebeam_deploy_args(self, conf: dict) -> dict:
+        return get_model_sciencebeam_deploy_args(self.get_model(conf))
+
     def get_sciencebeam_deploy_args(self, conf: dict) -> dict:
         LOGGER.debug('conf: %s', conf)
-        return get_model_sciencebeam_deploy_args(self.get_model(conf))
+        helm_args = self.get_base_sciencebeam_deploy_args(conf)
+        replica_count = self.get_replica_count(conf)
+        if replica_count:
+            child_chart_names = list(get_sciencebeam_child_chart_names_for_helm_args(helm_args))
+            helm_args['replicaCount'] = replica_count
+            for child_chart_name in child_chart_names:
+                helm_args['%s.replicaCount' % child_chart_name] = replica_count
+        return helm_args
 
     def get_sciencebeam_child_chart_names(
             self, dag_run: DagRun, **_) -> List[str]:
         conf: dict = dag_run.conf
-        helm_args = self.get_sciencebeam_deploy_args(conf)
+        helm_args = self.get_base_sciencebeam_deploy_args(conf)
         return get_sciencebeam_child_chart_names_for_helm_args(helm_args)
+
+    def get_sciencebeam_image(self, conf: dict) -> str:
+        return get_sciencebeam_image(conf)
 
     def is_config_valid(self, conf: dict) -> bool:
         return (
@@ -168,6 +196,8 @@ class ScienceBeamConvertMacros:
             and self.get_source_conf(conf)
             and self.get_output_conf(conf)
             and self.get_limit(conf)
+            and self.get_worker_count(conf)
+            and True
         )
 
 
@@ -211,7 +241,7 @@ def create_sciencebeam_convert_op(
         dag=dag,
         task_id=task_id,
         namespace='{{ dag_run.conf.namespace }}',
-        image='elifesciences/sciencebeam:0.0.1',
+        image='{{ get_sciencebeam_image(dag_run.conf) }}',
         name='{{ generate_run_name(dag_run.conf.sciencebeam_release_name, "convert") }}',
         preemptible=True,
         requests='cpu=300m,memory=800Mi',
@@ -226,7 +256,7 @@ def create_get_output_file_list_op(
         dag=dag,
         task_id=task_id,
         namespace='{{ dag_run.conf.namespace }}',
-        image='elifesciences/sciencebeam:0.0.1',
+        image='{{ get_sciencebeam_image(dag_run.conf) }}',
         name='{{ generate_run_name(dag_run.conf.sciencebeam_release_name, "get-output-list") }}',
         preemptible=True,
         requests='cpu=100m,memory=256Mi',

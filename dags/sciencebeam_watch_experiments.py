@@ -99,7 +99,7 @@ def _get_copied_experiment_data_props(experiment_data: dict) -> dict:
     return {
         key: value
         for key, value in experiment_data.items()
-        if key.endswith('_image')
+        if key.endswith('_image') or key in {'config'}
     }
 
 

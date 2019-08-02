@@ -6,6 +6,15 @@ ifndef SCIENCEBEAM_NAMESPACE
 endif
 
 
+DOCKER_COMPOSE_DEV = docker-compose
+DOCKER_COMPOSE_CI = docker-compose -f docker-compose.yml
+DOCKER_COMPOSE = $(DOCKER_COMPOSE_DEV)
+
+VENV = venv
+PIP = $(VENV)/bin/pip
+PYTHON = PYTHONPATH=dags $(VENV)/bin/python
+
+
 GCP_PROJECT = elife-ml
 
 # optional charts dir
@@ -53,10 +62,6 @@ GROBID_TRAINED_MODEL_IMAGE = $(GROBID_TRAINED_MODEL_IMAGE_REPO):$(GROBID_TRAINED
 GROBID_TRAINED_MODEL_NAME = grobid-tei-$(GROBID_TRAINED_MODEL_IMAGE_TAG)
 GROBID_CROSSREF_ENABLED = false
 
-DOCKER_COMPOSE_DEV = docker-compose
-DOCKER_COMPOSE_CI = docker-compose -f docker-compose.yml
-DOCKER_COMPOSE = $(DOCKER_COMPOSE_DEV)
-
 AUTOCUT_TAG = 40ff412896fc3b5077803c759beaf92f3e8970cb
 AUTOCUT_TRAINED_MODEL_IMAGE_REPO = gcr.io/$(GCP_PROJECT)/sciencebeam-autocut-trained-model--$(SCIENCEBEAM_NAMESPACE)
 AUTOCUT_TRAINED_MODEL_IMAGE_TAG = $(AUTOCUT_TAG)-$(TRAIN_DATASET)-$(TRAIN_LIMIT)
@@ -70,18 +75,65 @@ AUTOCUT_EVAL_OUTPUT_PATH = $(AUTOCUT_OUTPUT_DATA_PATH)/evaluation-results
 
 SCIENCEBEAM_CHARTS_COMMIT = $(shell bash -c 'source .env && echo $$SCIENCEBEAM_CHARTS_COMMIT')
 
+WORKER_COUNT = 10
+REPLICA_COUNT = 0
 
-dev-venv:
-	rm -rf venv || true
 
-	virtualenv -p python3.6 venv
+venv-clean:
+	@if [ -d "$(VENV)" ]; then \
+		rm -rf "$(VENV)"; \
+	fi
 
-	venv/bin/pip install -r requirements.txt
+
+venv-create:
+	python3 -m venv $(VENV)
+
+
+dev-install:
+	$(PIP) install -r requirements.txt
 
 	export AIRFLOW_GPL_UNIDECODE=yes
-	venv/bin/pip install -r requirements.prereq.txt
+	$(PIP) install -r requirements.prereq.txt
 
-	venv/bin/pip install -r requirements.dev.txt
+	$(PIP) install -r requirements.dev.txt
+
+
+dev-venv: venv-create dev-install
+
+
+dev-flake8:
+	$(PYTHON) -m flake8 dags tests
+
+
+dev-pylint:
+	$(PYTHON) -m pylint dags tests
+
+
+dev-lint: dev-flake8 dev-pylint
+
+
+dev-pytest:
+	GOOGLE_CLOUD_PROJECT=dummy \
+	SCIENCEBEAM_CONFIG_DATA_PATH=gs://dummy \
+	SCIENCEBEAM_WATCH_INTERVAL=1000 \
+	$(PYTHON) -m pytest -p no:cacheprovider $(ARGS)
+
+
+dev-watch:
+	GOOGLE_CLOUD_PROJECT=dummy \
+	SCIENCEBEAM_CONFIG_DATA_PATH=gs://dummy \
+	SCIENCEBEAM_WATCH_INTERVAL=1000 \
+	$(PYTHON) -m pytest_watch --verbose --ext=.py,.xsl -- -p no:cacheprovider -k 'not slow' $(ARGS)
+
+
+dev-watch-slow:
+	GOOGLE_CLOUD_PROJECT=dummy \
+	SCIENCEBEAM_CONFIG_DATA_PATH=gs://dummy \
+	SCIENCEBEAM_WATCH_INTERVAL=1000 \
+	$(PYTHON) -m pytest_watch --verbose --ext=.py,.xsl -- -p no:cacheprovider $(ARGS)
+
+
+dev-test: dev-lint dev-pytest
 
 
 helm-charts-clone:
@@ -219,6 +271,12 @@ trigger-helm-version:
 	$(eval export SCIENCEBEAM_CONVERT_EVAL_CONF = $(shell echo '{ \
 		$(SCIENCEBEAM_COMMON_CONF), \
 		$(SCIENCEBEAM_CONVERT_SHARED_CONF), \
+		"config": { \
+			"convert": { \
+				"worker_count": "$(WORKER_COUNT)", \
+				"replica_count": "$(REPLICA_COUNT)" \
+			} \
+		}, \
 		"model_name": "$(MODEL_NAME)", \
 		"model": { \
 			"name": "$(MODEL_NAME)", \
