@@ -76,6 +76,7 @@ AUTOCUT_EVAL_OUTPUT_PATH = $(AUTOCUT_OUTPUT_DATA_PATH)/evaluation-results
 SCIENCEBEAM_CHARTS_COMMIT = $(shell bash -c 'source .env && echo $$SCIENCEBEAM_CHARTS_COMMIT')
 
 WORKER_COUNT = 10
+REPLICA_COUNT = 0
 
 
 venv-clean:
@@ -272,8 +273,9 @@ trigger-helm-version:
 		$(SCIENCEBEAM_CONVERT_SHARED_CONF), \
 		"config": { \
 			"convert": { \
-				"worker_count": "$(WORKER_COUNT)" \
-			}, \
+				"worker_count": "$(WORKER_COUNT)", \
+				"replica_count": "$(REPLICA_COUNT)" \
+			} \
 		}, \
 		"model_name": "$(MODEL_NAME)", \
 		"model": { \
