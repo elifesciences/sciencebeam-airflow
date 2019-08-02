@@ -6,6 +6,11 @@ ifndef SCIENCEBEAM_NAMESPACE
 endif
 
 
+VENV = venv
+PIP = $(VENV)/bin/pip
+PYTHON = PYTHONPATH=dags $(VENV)/bin/python
+
+
 GCP_PROJECT = elife-ml
 
 # optional charts dir
@@ -73,17 +78,61 @@ SCIENCEBEAM_CHARTS_COMMIT = $(shell bash -c 'source .env && echo $$SCIENCEBEAM_C
 WORKER_COUNT = 10
 
 
-dev-venv:
-	rm -rf venv || true
+venv-clean:
+	@if [ -d "$(VENV)" ]; then \
+		rm -rf "$(VENV)"; \
+	fi
 
-	virtualenv -p python3.6 venv
 
-	venv/bin/pip install -r requirements.txt
+venv-create:
+	python3 -m venv $(VENV)
+
+
+dev-install:
+	$(PIP) install -r requirements.txt
 
 	export AIRFLOW_GPL_UNIDECODE=yes
-	venv/bin/pip install -r requirements.prereq.txt
+	$(PIP) install -r requirements.prereq.txt
 
-	venv/bin/pip install -r requirements.dev.txt
+	$(PIP) install -r requirements.dev.txt
+
+
+dev-venv: venv-create dev-install
+
+
+dev-flake8:
+	$(PYTHON) -m flake8 dags tests
+
+
+dev-pylint:
+	$(PYTHON) -m pylint dags tests
+
+
+dev-lint: dev-flake8 dev-pylint
+
+
+dev-pytest:
+	GOOGLE_CLOUD_PROJECT=dummy \
+	SCIENCEBEAM_CONFIG_DATA_PATH=gs://dummy \
+	SCIENCEBEAM_WATCH_INTERVAL=1000 \
+	$(PYTHON) -m pytest -p no:cacheprovider $(ARGS)
+
+
+dev-watch:
+	GOOGLE_CLOUD_PROJECT=dummy \
+	SCIENCEBEAM_CONFIG_DATA_PATH=gs://dummy \
+	SCIENCEBEAM_WATCH_INTERVAL=1000 \
+	$(PYTHON) -m pytest_watch --verbose --ext=.py,.xsl -- -p no:cacheprovider -k 'not slow' $(ARGS)
+
+
+dev-watch-slow:
+	GOOGLE_CLOUD_PROJECT=dummy \
+	SCIENCEBEAM_CONFIG_DATA_PATH=gs://dummy \
+	SCIENCEBEAM_WATCH_INTERVAL=1000 \
+	$(PYTHON) -m pytest_watch --verbose --ext=.py,.xsl -- -p no:cacheprovider $(ARGS)
+
+
+dev-test: dev-lint dev-pytest
 
 
 helm-charts-clone:
