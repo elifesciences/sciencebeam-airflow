@@ -1,12 +1,15 @@
 import logging
 from typing import List
 
+import pytest
+
 from dags.sciencebeam_convert import (
     create_dag,
     get_sciencebeam_child_chart_names_for_helm_args,
     create_deploy_sciencebeam_op,
     create_sciencebeam_convert_op,
-    ScienceBeamConvertMacros
+    ScienceBeamConvertMacros,
+    DEFAULT_WORKER_COUNT
 )
 
 from .test_utils import (
@@ -105,6 +108,33 @@ class TestScienceBeamConvert:
         def test_default_conf_should_be_valid(self):
             assert ScienceBeamConvertMacros().is_config_valid(DEFAULT_CONF)
 
+        def test_should_use_default_worker_count(self):
+            assert (
+                ScienceBeamConvertMacros().get_worker_count(DEFAULT_CONF)
+                == DEFAULT_WORKER_COUNT
+            )
+
+        def test_should_use_configured_worker_count(self):
+            assert ScienceBeamConvertMacros().get_worker_count({
+                **DEFAULT_CONF,
+                'config': {
+                    'convert': {
+                        'worker_count': '123'
+                    }
+                }
+            }) == 123
+
+        def test_should_reject_invalid_worker_count(self):
+            with pytest.raises(ValueError):
+                ScienceBeamConvertMacros().is_config_valid({
+                    **DEFAULT_CONF,
+                    'config': {
+                        'convert': {
+                            'worker_count': 'not a number'
+                        }
+                    }
+                })
+
     class TestCreateScienceBeamDeployOp:
         def test_should_include_namespace(self, dag, airflow_context, dag_run):
             dag_run.conf = DEFAULT_CONF
@@ -200,3 +230,16 @@ class TestScienceBeamConvert:
             lines = rendered_bash_command.splitlines()
             LOGGER.info('lines: %s', lines)
             assert len(lines) == 1
+
+        def test_should_include_worker_count(self, dag, airflow_context, dag_run):
+            dag_run.conf = {
+                **DEFAULT_CONF,
+                'config': {
+                    'convert': {
+                        'worker_count': 123
+                    }
+                }
+            }
+            rendered_bash_command = _create_and_render_convert_command(dag, airflow_context)
+            opt = parse_command_arg(rendered_bash_command, {'--num-workers': str})
+            assert getattr(opt, 'num_workers') == '123'

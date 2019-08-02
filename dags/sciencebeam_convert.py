@@ -45,6 +45,9 @@ REQUIRED_PROPS = {
 DEFAULT_ARGS = get_default_args()
 
 
+DEFAULT_WORKER_COUNT = 10
+
+
 DEPLOY_SCIENCEBEAM_ARGS_TEMPLATE = (
     '''
     --timeout 600 \
@@ -77,7 +80,7 @@ SCIENCEBEAM_CONVERT_TEMPLATE = (
             --resume \
         {% endif %} \
         --limit "{{ get_limit(dag_run.conf) }}" \
-        --num-workers "10"
+        --num-workers "{{ get_worker_count(dag_run.conf) }}"
     '''
 )
 
@@ -154,6 +157,12 @@ class ScienceBeamConvertMacros:
     def get_limit(self, conf: dict) -> str:
         return conf['limit']
 
+    def get_convert_config(self, conf: dict) -> dict:
+        return conf.get('config', {}).get('convert', {})
+
+    def get_worker_count(self, conf: dict) -> str:
+        return int(self.get_convert_config(conf).get('worker_count', DEFAULT_WORKER_COUNT))
+
     def get_sciencebeam_deploy_args(self, conf: dict) -> dict:
         LOGGER.debug('conf: %s', conf)
         return get_model_sciencebeam_deploy_args(self.get_model(conf))
@@ -173,6 +182,8 @@ class ScienceBeamConvertMacros:
             and self.get_source_conf(conf)
             and self.get_output_conf(conf)
             and self.get_limit(conf)
+            and self.get_worker_count(conf)
+            and True
         )
 
 
