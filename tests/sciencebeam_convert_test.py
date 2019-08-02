@@ -187,6 +187,7 @@ class TestScienceBeamConvert:
             opt = parse_command_arg(rendered_bash_command, {'--set': [str]})
             set_props = _parse_set_string_list(getattr(opt, 'set'))
             assert set_props.get('replicaCount') == '42'
+            assert set_props.get('grobid.replicaCount') == '42'
 
         def test_should_only_include_a_single_line(
                 self, dag, airflow_context, dag_run):

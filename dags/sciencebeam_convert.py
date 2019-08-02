@@ -167,18 +167,23 @@ class ScienceBeamConvertMacros:
     def get_replica_count(self, conf: dict) -> str:
         return int(self.get_convert_config(conf).get('replica_count', DEFAULT_REPLICA_COUNT))
 
+    def get_base_sciencebeam_deploy_args(self, conf: dict) -> dict:
+        return get_model_sciencebeam_deploy_args(self.get_model(conf))
+
     def get_sciencebeam_deploy_args(self, conf: dict) -> dict:
         LOGGER.debug('conf: %s', conf)
-        deploy_args = get_model_sciencebeam_deploy_args(self.get_model(conf))
+        helm_args = self.get_base_sciencebeam_deploy_args(conf)
         replica_count = self.get_replica_count(conf)
         if replica_count:
-            deploy_args['replicaCount'] = replica_count
-        return deploy_args
+            helm_args['replicaCount'] = replica_count
+            for child_chart_name in list(get_sciencebeam_child_chart_names_for_helm_args(helm_args)):
+                helm_args['%s.replicaCount' % child_chart_name] = replica_count
+        return helm_args
 
     def get_sciencebeam_child_chart_names(
             self, dag_run: DagRun, **_) -> List[str]:
         conf: dict = dag_run.conf
-        helm_args = self.get_sciencebeam_deploy_args(conf)
+        helm_args = self.get_base_sciencebeam_deploy_args(conf)
         return get_sciencebeam_child_chart_names_for_helm_args(helm_args)
 
     def get_sciencebeam_image(self, conf: dict) -> str:
