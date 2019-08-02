@@ -175,8 +175,9 @@ class ScienceBeamConvertMacros:
         helm_args = self.get_base_sciencebeam_deploy_args(conf)
         replica_count = self.get_replica_count(conf)
         if replica_count:
+            child_chart_names = list(get_sciencebeam_child_chart_names_for_helm_args(helm_args))
             helm_args['replicaCount'] = replica_count
-            for child_chart_name in list(get_sciencebeam_child_chart_names_for_helm_args(helm_args)):
+            for child_chart_name in child_chart_names:
                 helm_args['%s.replicaCount' % child_chart_name] = replica_count
         return helm_args
 
