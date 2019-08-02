@@ -393,6 +393,20 @@ def get_app_config_value(
     return value
 
 
+DEFAULT_SCIENCEBEAM_IMAGE = (
+    'elifesciences/sciencebeam_unstable:4f2866eeeeb9550af248c63d65285f01c0600895'
+)
+
+
+def get_sciencebeam_image(config: dict = None):
+    return get_app_config_value(
+        'sciencebeam_image',
+        config=config,
+        default_value=DEFAULT_SCIENCEBEAM_IMAGE,
+        required=True
+    )
+
+
 DEFAULT_SCIENCEBEAM_JUDGE_IMAGE = (
     'elifesciences/sciencebeam-judge_unstable:7eabb8b7e23d1719b7877a85c6ac7d4044b56172'
 )
