@@ -173,6 +173,21 @@ class TestScienceBeamConvert:
                 'fullnameOverride': FULL_CHART_NAME
             }
 
+        def test_should_set_replica_count_if_configured(
+                self, dag, airflow_context, dag_run):
+            dag_run.conf = {
+                **DEFAULT_CONF,
+                'config': {
+                    'convert': {
+                        'replica_count': 42
+                    }
+                }
+            }
+            rendered_bash_command = _create_and_render_deploy_command(dag, airflow_context)
+            opt = parse_command_arg(rendered_bash_command, {'--set': [str]})
+            set_props = _parse_set_string_list(getattr(opt, 'set'))
+            assert set_props.get('replicaCount') == '42'
+
         def test_should_only_include_a_single_line(
                 self, dag, airflow_context, dag_run):
             dag_run.conf = DEFAULT_CONF

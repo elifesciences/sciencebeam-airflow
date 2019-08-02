@@ -46,6 +46,7 @@ DEFAULT_ARGS = get_default_args()
 
 
 DEFAULT_WORKER_COUNT = 10
+DEFAULT_REPLICA_COUNT = 0  # don't set replica by default
 
 
 DEPLOY_SCIENCEBEAM_ARGS_TEMPLATE = (
@@ -163,9 +164,16 @@ class ScienceBeamConvertMacros:
     def get_worker_count(self, conf: dict) -> str:
         return int(self.get_convert_config(conf).get('worker_count', DEFAULT_WORKER_COUNT))
 
+    def get_replica_count(self, conf: dict) -> str:
+        return int(self.get_convert_config(conf).get('replica_count', DEFAULT_REPLICA_COUNT))
+
     def get_sciencebeam_deploy_args(self, conf: dict) -> dict:
         LOGGER.debug('conf: %s', conf)
-        return get_model_sciencebeam_deploy_args(self.get_model(conf))
+        deploy_args = get_model_sciencebeam_deploy_args(self.get_model(conf))
+        replica_count = self.get_replica_count(conf)
+        if replica_count:
+            deploy_args['replicaCount'] = replica_count
+        return deploy_args
 
     def get_sciencebeam_child_chart_names(
             self, dag_run: DagRun, **_) -> List[str]:
