@@ -61,11 +61,13 @@ def add_replica_helm_args(helm_args: Dict[str, str], replica_count: int) -> Dict
     return helm_args
 
 
-def get_model_sciencebeam_deploy_args(model: dict, replica_count: int) -> Dict[str, str]:
-    return add_replica_helm_args(
-        get_base_model_sciencebeam_deploy_args(model),
-        replica_count=replica_count
-    )
+def get_model_sciencebeam_deploy_args(
+        model: dict, replica_count: int, timeout: int) -> Dict[str, str]:
+    helm_args = get_base_model_sciencebeam_deploy_args(model)
+    helm_args = add_replica_helm_args(helm_args, replica_count=replica_count)
+    if timeout:
+        helm_args['timeout'] = str(timeout)
+    return helm_args
 
 
 def parse_args(argv: List[str] = None) -> argparse.Namespace:
@@ -77,6 +79,18 @@ def parse_args(argv: List[str] = None) -> argparse.Namespace:
         type=str,
         required=True,
         help="URL to model config"
+    )
+    parser.add_argument(
+        "--timeout",
+        type=int,
+        default=600,
+        help="Helm deploy timeout in seconds"
+    )
+    parser.add_argument(
+        "--replica-count",
+        type=int,
+        default=0,
+        help="Number of replicas (0, for keeping replica count from model definition)"
     )
     args = parser.parse_args(argv)
     return args
@@ -103,7 +117,7 @@ def format_helm_args(helm_args: Dict[str, str]) -> str:
 def run(args: argparse.Namespace):
     model_config = _load_model_config(args.model_url)
     helm_args = get_model_sciencebeam_deploy_args(
-        model_config, 1
+        model_config, replica_count=args.replica_count, timeout=args.timeout
     )
     LOGGER.info('helm args: %s', helm_args)
     child_chart_names = get_sciencebeam_child_chart_names_for_helm_args(helm_args)
