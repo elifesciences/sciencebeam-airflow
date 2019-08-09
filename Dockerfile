@@ -17,6 +17,7 @@ RUN apt-get update \
   && apt-get install --assume-yes --no-install-recommends \
     python2.7-minimal libpython2.7-stdlib \
     jq \
+    git \
   && rm -rf /var/lib/apt/lists/*
 
 RUN mkdir -p /usr/local/gcloud \
@@ -48,3 +49,14 @@ COPY --chown=airflow:airflow helm ${HELM_CHARTS_DIR}
 RUN cd ${HELM_CHARTS_DIR}/sciencebeam \
   && helm init --client-only \
   && helm dep update
+
+# apply https://github.com/apache/airflow/pull/5616
+USER root
+RUN curl -q --location https://github.com/apache/airflow/pull/5616.patch -o /tmp/airflow-pr5616.patch \
+  && cd /usr/local/lib/python3.7/site-packages \
+  && git apply /tmp/airflow-pr5616.patch \
+    --include airflow/api/common/experimental/mark_tasks.py \
+    --include airflow/models/dag.py \
+  && rm /tmp/airflow-pr5616.patch
+ENV AIRFLOW_PR_5616=y
+USER airflow
