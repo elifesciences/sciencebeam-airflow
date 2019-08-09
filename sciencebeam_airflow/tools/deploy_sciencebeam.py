@@ -89,6 +89,12 @@ def parse_args(argv: List[str] = None) -> argparse.Namespace:
         help="The namespace to use"
     )
     parser.add_argument(
+        "--release-name",
+        type=str,
+        default='sb-adhoc-1',
+        help="The helm release name"
+    )
+    parser.add_argument(
         "--timeout",
         type=int,
         default=600,
@@ -138,7 +144,7 @@ def run(args: argparse.Namespace):
             preemptible=True,
             child_chart_names=child_chart_names) as generated_helm_args:
         LOGGER.info('generated_helm_args: %s', generated_helm_args)
-        release_name = 'sb-ad-hoc-1'
+        release_name = args.release_name
         if args.delete:
             command = get_helm_delete_command(release_name=release_name, purge=True)
         else:
