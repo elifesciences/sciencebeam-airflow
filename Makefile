@@ -201,10 +201,18 @@ clean:
 
 
 web-shell:
+	$(DOCKER_COMPOSE) run airflow-webserver bash
+
+
+web-exec:
 	$(DOCKER_COMPOSE) exec airflow-webserver /entrypoint.sh bash
 
 
 worker-shell:
+	$(DOCKER_COMPOSE) run airflow-worker bash
+
+
+worker-exec:
 	$(DOCKER_COMPOSE) exec airflow-worker /entrypoint.sh bash
 
 
