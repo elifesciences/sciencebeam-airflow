@@ -55,7 +55,8 @@ USER root
 RUN curl -q --location https://github.com/apache/airflow/pull/5616.patch -o /tmp/airflow-pr5616.patch \
   && cd /usr/local/lib/python3.7/site-packages \
   && git apply /tmp/airflow-pr5616.patch \
-    --include airflow/api/common/experimental/mark_tasks.py  --include airflow/models/dag.py \
+    --include airflow/api/common/experimental/mark_tasks.py \
+    --include airflow/models/dag.py \
   && rm /tmp/airflow-pr5616.patch
 ENV AIRFLOW_PR_5616=y
 USER airflow
