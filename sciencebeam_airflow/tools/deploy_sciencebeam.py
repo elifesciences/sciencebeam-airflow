@@ -13,6 +13,7 @@ from sciencebeam_airflow.utils.container import (
     get_helm_delete_command
 )
 from sciencebeam_airflow.utils.subprocess import run_command
+from sciencebeam_airflow.utils.sciencebeam_env import get_namespace
 
 
 LOGGER = logging.getLogger(__name__)
@@ -82,6 +83,12 @@ def parse_args(argv: List[str] = None) -> argparse.Namespace:
         help="URL to model config"
     )
     parser.add_argument(
+        "--namespace",
+        type=str,
+        default=get_namespace(),
+        help="The namespace to use"
+    )
+    parser.add_argument(
         "--timeout",
         type=int,
         default=600,
@@ -136,7 +143,7 @@ def run(args: argparse.Namespace):
             command = get_helm_delete_command(release_name=release_name, purge=True)
         else:
             command = get_helm_deploy_command(
-                namespace='dev',
+                namespace=args.namespace,
                 release_name=release_name,
                 chart_name='$HELM_CHARTS_DIR/sciencebeam',
                 helm_args=' '.join([generated_helm_args, format_helm_args(helm_args)])
