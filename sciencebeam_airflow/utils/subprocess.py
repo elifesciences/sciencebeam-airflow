@@ -1,6 +1,7 @@
 import logging
 import shlex
 import subprocess
+import sys
 
 
 LOGGER = logging.getLogger(__name__)
@@ -14,7 +15,7 @@ def run_command(command, **kwargs):
     LOGGER.info('running command: %s', command_args)
     process = subprocess.Popen(
         command_args,
-        stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+        stdin=subprocess.PIPE, stdout=sys.stdout, stderr=sys.stderr,
         **kwargs
     )
     stdout_data, _ = process.communicate()
