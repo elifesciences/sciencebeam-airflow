@@ -46,7 +46,7 @@ services:
     environment: *airflow-env
 
   airflow-redis:
-    image: 'bitnami/redis:4.0.14'
+    image: 'bitnami/redis:5.0.5'
     environment:
       - ALLOW_EMPTY_PASSWORD=yes
 

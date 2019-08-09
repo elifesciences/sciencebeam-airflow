@@ -1,4 +1,4 @@
-FROM puckel/docker-airflow:1.10.2
+FROM puckel/docker-airflow:1.10.4
 
 USER root
 
@@ -11,12 +11,6 @@ RUN curl -q https://storage.googleapis.com/kubernetes-release/release/${KUBE_VER
     && curl -q https://storage.googleapis.com/kubernetes-helm/helm-${HELM_VERSION}-linux-amd64.tar.gz -o - | tar -xzO linux-amd64/helm > /usr/local/bin/helm \
     && chmod +x /usr/local/bin/helm
 
-RUN mkdir -p /usr/local/gcloud \
-    && curl -q https://dl.google.com/dl/cloudsdk/release/google-cloud-sdk.tar.gz -o /tmp/google-cloud-sdk.tar.gz \
-    && tar -C /usr/local/gcloud -xvf /tmp/google-cloud-sdk.tar.gz \
-    && rm /tmp/google-cloud-sdk.tar.gz \
-    && /usr/local/gcloud/google-cloud-sdk/install.sh
-
 # gcloud sdk cli only works with Python 2 (in 2019)
 # also install jq (for docker image build script)
 RUN apt-get update \
@@ -24,6 +18,12 @@ RUN apt-get update \
     python2.7-minimal libpython2.7-stdlib \
     jq \
   && rm -rf /var/lib/apt/lists/*
+
+RUN mkdir -p /usr/local/gcloud \
+    && curl -q https://dl.google.com/dl/cloudsdk/release/google-cloud-sdk.tar.gz -o /tmp/google-cloud-sdk.tar.gz \
+    && tar -C /usr/local/gcloud -xvf /tmp/google-cloud-sdk.tar.gz \
+    && rm /tmp/google-cloud-sdk.tar.gz \
+    && /usr/local/gcloud/google-cloud-sdk/install.sh
 
 USER airflow
 

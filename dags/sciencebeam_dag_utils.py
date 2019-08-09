@@ -213,21 +213,17 @@ def _copy_or_move_file(
         google_cloud_storage_conn_id=google_cloud_storage_conn_id,
         delegate_to=delegate_to
     )
-    rewrite_result = hook.rewrite(
+    hook.rewrite(
         parsed_source_url['bucket'],
         parsed_source_url['object'],
         parsed_target_url['bucket'],
         parsed_target_url['object']
     )
-    if not rewrite_result:
-        raise IOError(f'failed to copy file {source_url} to {target_url} (not found)')
     if is_move_file:
-        delete_result = hook.delete(
+        hook.delete(
             parsed_source_url['bucket'],
             parsed_source_url['object']
         )
-        if not delete_result:
-            raise IOError(f'failed to delete file {source_url} (not found)')
 
 
 def copy_file(*args, **kwargs):
