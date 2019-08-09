@@ -121,3 +121,15 @@ def get_helm_deploy_command(
             helm_args=helm_args.strip()
         ).strip()
     )
+
+
+def get_helm_delete_command(release_name: str, purge=True, helm_args='') -> str:
+    return (
+        '''
+        helm delete{purge_arg} {helm_args} "{release_name}"
+        '''.format(
+            release_name=release_name,
+            purge_arg=' --purge' if purge else '',
+            helm_args=helm_args.strip()
+        ).strip()
+    )

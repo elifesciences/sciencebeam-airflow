@@ -9,7 +9,8 @@ from sciencebeam_airflow.utils.io import (
 )
 from sciencebeam_airflow.utils.container import (
     GeneratedHelmDeployArgs,
-    get_helm_deploy_command
+    get_helm_deploy_command,
+    get_helm_delete_command
 )
 from sciencebeam_airflow.utils.subprocess import run_command
 
@@ -92,6 +93,11 @@ def parse_args(argv: List[str] = None) -> argparse.Namespace:
         default=0,
         help="Number of replicas (0, for keeping replica count from model definition)"
     )
+    parser.add_argument(
+        "--delete",
+        action='store_true',
+        help="Rather than deploying, delete helm chart"
+    )
     args = parser.parse_args(argv)
     return args
 
@@ -125,14 +131,17 @@ def run(args: argparse.Namespace):
             preemptible=True,
             child_chart_names=child_chart_names) as generated_helm_args:
         LOGGER.info('generated_helm_args: %s', generated_helm_args)
-        helm_deploy_command = get_helm_deploy_command(
-            namespace='dev',
-            release_name='sb-ad-hoc-1',
-            chart_name='$HELM_CHARTS_DIR/sciencebeam',
-            helm_args=' '.join([generated_helm_args, format_helm_args(helm_args)])
-        )
-        LOGGER.info('helm_deploy_command: %s', helm_deploy_command)
-        run_command(helm_deploy_command, shell=True)
+        release_name = 'sb-ad-hoc-1'
+        if args.delete:
+            command = get_helm_delete_command(release_name=release_name, purge=True)
+        else:
+            command = get_helm_deploy_command(
+                namespace='dev',
+                release_name=release_name,
+                chart_name='$HELM_CHARTS_DIR/sciencebeam',
+                helm_args=' '.join([generated_helm_args, format_helm_args(helm_args)])
+            )
+        run_command(command, shell=True)
 
 
 def main(argv: List[str] = None):
