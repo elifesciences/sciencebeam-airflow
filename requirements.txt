@@ -3,4 +3,4 @@ google-api-python-client==1.7.10
 google-cloud-storage==1.18.0
 kubernetes==8.0.1
 psycopg2-binary==2.8.2
-redis==3.2.1
+redis==3.3.8
