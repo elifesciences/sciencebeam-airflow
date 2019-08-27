@@ -60,3 +60,7 @@ RUN curl -q --location https://github.com/apache/airflow/pull/5616.patch -o /tmp
   && rm /tmp/airflow-pr5616.patch
 ENV AIRFLOW_PR_5616=y
 USER airflow
+
+COPY --chown=airflow:airflow sciencebeam_airflow ./sciencebeam_airflow
+COPY --chown=airflow:airflow setup.py ./
+RUN pip install -e . --user --no-dependencies

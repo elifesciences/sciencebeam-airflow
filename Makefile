@@ -78,6 +78,8 @@ SCIENCEBEAM_CHARTS_COMMIT = $(shell bash -c 'source .env && echo $$SCIENCEBEAM_C
 WORKER_COUNT = 10
 REPLICA_COUNT = 0
 
+ARGS =
+
 
 venv-clean:
 	@if [ -d "$(VENV)" ]; then \
@@ -90,7 +92,7 @@ venv-create:
 
 
 dev-install:
-	$(PIP) install -r requirements.txt
+	$(PIP) install -e .
 
 	export AIRFLOW_GPL_UNIDECODE=yes
 	$(PIP) install -r requirements.prereq.txt
@@ -177,6 +179,11 @@ test: build-dev
 
 watch: build-dev
 	$(DOCKER_COMPOSE) run --rm airflow-dev python -m pytest_watch
+
+
+deploy-sciencebeam:
+	$(DOCKER_COMPOSE) run --rm --no-deps --entrypoint='' airflow-webserver \
+		python -m sciencebeam_airflow.tools.deploy_sciencebeam $(ARGS)
 
 
 start: helm-charts-update
