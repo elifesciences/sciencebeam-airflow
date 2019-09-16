@@ -390,7 +390,7 @@ def get_app_config_value(
 
 
 DEFAULT_SCIENCEBEAM_IMAGE = (
-    'elifesciences/sciencebeam_unstable:b3058534b2f5895f662c55c15320584da54a9eda'
+    'elifesciences/sciencebeam_unstable:d7550637fb8efc5a4c2a3634ca0d8a26a2c91f8a'
 )
 
 
