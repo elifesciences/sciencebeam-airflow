@@ -196,6 +196,7 @@ def get_conf_for_experiment_data(experiment_data):  # pylint: disable=too-many-l
         'model': model,
         'sciencebeam_release_name': sciencebeam_release_name,
         'namespace': namespace,
+        'dataset': dataset,
         'source_data_path': source_data_path,
         'source_file_list': os.path.basename(source_file_list),
         'output_data_path': output_data_path,
