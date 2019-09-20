@@ -10,13 +10,20 @@ from dags.sciencebeam_evaluate import (
 
 from .test_utils import create_and_render_command, parse_command_arg
 
-from .sciencebeam_test_utils import DEFAULT_CONF
+from .sciencebeam_test_utils import DEFAULT_CONF as _DEFAULT_CONF
 
 
 SCIENCEBEAM_JUDGE_IMAGE_1 = 'judge:0.0.1'
 
 
 FIELD_1 = 'field1'
+
+
+DEFAULT_CONF = {
+    **_DEFAULT_CONF,
+    'source_data_path': '/path/to/source',
+    'source_file_list': 'file-list.lst'
+}
 
 
 @pytest.fixture(name='get_sciencebeam_judge_image_mock')
@@ -72,3 +79,24 @@ class TestScienceBeamEvaluate:
             rendered_bash_command = _create_and_render_evaluate_command(dag, airflow_context)
             opt = parse_command_arg(rendered_bash_command, {'--fields': str})
             assert getattr(opt, 'fields') == FIELD_1
+
+        def test_should_include_target_file_list(self, dag, airflow_context, dag_run):
+            dag_run.conf = {
+                **DEFAULT_CONF,
+                'dataset': {
+                    'target_file_list': '/path/to/target/file-list.lst'
+                }
+            }
+            rendered_bash_command = _create_and_render_evaluate_command(dag, airflow_context)
+            opt = parse_command_arg(rendered_bash_command, {'--target-file-list': str})
+            assert getattr(opt, 'target_file_list') == '/path/to/target/file-list.lst'
+
+        def test_should_use_source_file_list_by_default(self, dag, airflow_context, dag_run):
+            dag_run.conf = {
+                **DEFAULT_CONF,
+                'source_data_path': '/path/to/source',
+                'source_file_list': 'file-list.lst'
+            }
+            rendered_bash_command = _create_and_render_evaluate_command(dag, airflow_context)
+            opt = parse_command_arg(rendered_bash_command, {'--target-file-list': str})
+            assert getattr(opt, 'target_file_list') == '/path/to/source/file-list.lst'

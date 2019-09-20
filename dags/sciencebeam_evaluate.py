@@ -1,3 +1,5 @@
+import os
+
 from airflow.models import DAG
 
 from sciencebeam_dag_ids import ScienceBeamDagIds
@@ -6,6 +8,7 @@ from sciencebeam_dag_utils import (
     get_default_args,
     create_validate_config_operation,
     create_trigger_next_task_dag_operator,
+    add_dag_macros,
     add_dag_macro,
     get_sciencebeam_judge_image
 )
@@ -44,7 +47,7 @@ SCIENCEBEAM_EVALUATE_TEMPLATE = (
     '''
     python -m sciencebeam_judge.evaluation_pipeline \
         --target-file-list \
-        "{{ dag_run.conf.source_data_path }}/{{ dag_run.conf.source_file_list }}" \
+        "{{ get_target_file_list(dag_run.conf) }}" \
         --target-file-column=xml_url \
         --prediction-file-list \
         "{{ dag_run.conf.output_data_path }}/{{ dag_run.conf.output_file_list }}" \
@@ -59,7 +62,35 @@ SCIENCEBEAM_EVALUATE_TEMPLATE = (
 )
 
 
-def create_sciencebeam_evaluate_op(dag, task_id='sciencebeam_evaluate'):
+class ScienceBeamEvaluateMacros:
+    def get_dataset(self, conf: dict) -> dict:
+        return conf.get('dataset')
+
+    def get_target_file_list(self, conf: dict) -> dict:
+        dataset = self.get_dataset(conf)
+        if dataset:
+            target_file_list = dataset.get('target_file_list')
+            if target_file_list:
+                return target_file_list
+        return os.path.join(conf['source_data_path'], conf['source_file_list'])
+
+    def is_config_valid(self, conf: dict) -> bool:
+        return (
+            self.get_target_file_list(conf)
+            and True
+        )
+
+
+def add_sciencebeam_evaluate_dag_macros(dag: DAG, macros: ScienceBeamEvaluateMacros = None):
+    if macros is None:
+        macros = ScienceBeamEvaluateMacros()
+    add_dag_macros(dag, macros)
+
+
+def create_sciencebeam_evaluate_op(
+        dag, macros: ScienceBeamEvaluateMacros = None,
+        task_id='sciencebeam_evaluate'):
+    add_sciencebeam_evaluate_dag_macros(dag, macros)
     add_dag_macro(dag, 'get_sciencebeam_judge_image', get_sciencebeam_judge_image)
     return ContainerRunOperator(
         dag=dag,
@@ -73,7 +104,9 @@ def create_sciencebeam_evaluate_op(dag, task_id='sciencebeam_evaluate'):
     )
 
 
-def create_dag():
+def create_dag(macros: ScienceBeamEvaluateMacros = None):
+    if macros is None:
+        macros = ScienceBeamEvaluateMacros()
     dag = DAG(
         dag_id=ScienceBeamDagIds.SCIENCEBEAM_EVALUATE,
         default_args=DEFAULT_ARGS,
@@ -81,7 +114,10 @@ def create_dag():
     )
 
     _ = (
-        create_validate_config_operation(dag=dag, required_props=REQUIRED_PROPS)
+        create_validate_config_operation(
+            dag=dag, required_props=REQUIRED_PROPS,
+            is_config_valid=macros.is_config_valid
+        )
         >> create_sciencebeam_evaluate_op(dag=dag)
         >> create_trigger_next_task_dag_operator(dag=dag)
     )
