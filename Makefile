@@ -208,7 +208,7 @@ clean:
 
 
 web-shell:
-	$(DOCKER_COMPOSE) run airflow-webserver bash
+	$(DOCKER_COMPOSE) run --no-deps airflow-webserver bash
 
 
 web-exec:
@@ -216,7 +216,7 @@ web-exec:
 
 
 worker-shell:
-	$(DOCKER_COMPOSE) run airflow-worker bash
+	$(DOCKER_COMPOSE) run --no-deps airflow-worker bash
 
 
 worker-exec:
