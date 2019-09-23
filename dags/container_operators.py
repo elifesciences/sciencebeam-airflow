@@ -40,23 +40,38 @@ def _get_preemptible_toleration():
     }
 
 
-def _get_preemptible_spec():
+def _get_prefer_preemptible_spec():
     return {
         "affinity": _get_preemptible_affinity(),
         "tolerations": [_get_preemptible_toleration()]
     }
 
 
-def _get_preemptible_json():
+def _get_select_preemptible_spec():
+    return {
+        "nodeSelector": {
+            "cloud.google.com/gke-preemptible": "true"
+        },
+        "tolerations": [_get_preemptible_toleration()]
+    }
+
+
+def _get_prefer_preemptible_json():
     return json.dumps({
-        "spec": _get_preemptible_spec()
+        "spec": _get_prefer_preemptible_spec()
+    })
+
+
+def _get_select_preemptible_json():
+    return json.dumps({
+        "spec": _get_select_preemptible_spec()
     })
 
 
 def _get_helm_preemptible_values(child_chart_names: List[str] = None) -> dict:
-    values = _get_preemptible_spec().copy()
+    values = _get_select_preemptible_spec().copy()
     for child_chart_name in (child_chart_names or []):
-        values[child_chart_name] = _get_preemptible_spec()
+        values[child_chart_name] = _get_select_preemptible_spec()
     return values
 
 
@@ -73,12 +88,15 @@ class ContainerRunOperator(BashOperator):
             image,
             name,
             command,
-            preemptible=False,
+            preemptible: bool = False,
+            prefer_preemptible: bool = False,
             requests='',
             **kwargs):
         kubectl_args = ''
         if preemptible:
-            kubectl_args = "--overrides '{json}'".format(json=_get_preemptible_json())
+            kubectl_args = "--overrides '{json}'".format(json=_get_select_preemptible_json())
+        elif prefer_preemptible:
+            kubectl_args = "--overrides '{json}'".format(json=_get_prefer_preemptible_json())
         if requests:
             kubectl_args += " --requests '{requests}'".format(requests=requests)
         bash_command = (
