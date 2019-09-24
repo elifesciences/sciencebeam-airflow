@@ -25,6 +25,7 @@ class TestTruncateRunId:
     def test_should_truncate_long_run_id(self):
         assert len(truncate_run_id('x' * 1000)) == 250
 
+
 class TestScienceBeamDagUtils:
     class TestCreateWatchSensor:
         def test_should_extract_bucket_and_prefix_from_url(self, dag):
