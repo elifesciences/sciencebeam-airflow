@@ -4,6 +4,7 @@ import pytest
 
 import dags.sciencebeam_dag_utils as sciencebeam_dag_utils_module
 from dags.sciencebeam_dag_utils import (
+    truncate_run_id,
     create_watch_sensor,
     create_list_operator,
     create_trigger_next_task_dag_operator,
@@ -15,6 +16,14 @@ from dags.sciencebeam_dag_utils import (
 def _simple_trigger_dag_mock():
     with patch.object(sciencebeam_dag_utils_module, 'simple_trigger_dag') as mock:
         yield mock
+
+
+class TestTruncateRunId:
+    def test_should_return_passed_int_run_id_if_short_enough(self):
+        assert truncate_run_id('run1') == 'run1'
+
+    def test_should_truncate_long_run_id(self):
+        assert len(truncate_run_id('x' * 1000)) == 250
 
 
 class TestScienceBeamDagUtils:
