@@ -234,11 +234,16 @@ def move_file(*args, **kwargs):
     _copy_or_move_file(*args, **kwargs, is_move_file=True)
 
 
+def truncate_run_id(run_id: str) -> str:
+    # maximum is 250
+    return run_id[:250]
+
+
 def _get_full_run_id(conf: dict, default_run_id: str) -> str:
     run_name = conf.get('run_name')
     if run_name:
-        return f'{default_run_id}_{run_name}'
-    return default_run_id
+        return truncate_run_id(f'{default_run_id}_{run_name}')
+    return truncate_run_id(default_run_id)
 
 
 def get_combined_run_name(base_run_name: str, sub_run_name: str) -> str:
