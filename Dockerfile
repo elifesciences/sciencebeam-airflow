@@ -11,11 +11,9 @@ RUN curl -q https://storage.googleapis.com/kubernetes-release/release/${KUBE_VER
     && curl -q https://storage.googleapis.com/kubernetes-helm/helm-${HELM_VERSION}-linux-amd64.tar.gz -o - | tar -xzO linux-amd64/helm > /usr/local/bin/helm \
     && chmod +x /usr/local/bin/helm
 
-# gcloud sdk cli only works with Python 2 (in 2019)
-# also install jq (for docker image build script)
+# install jq (for docker image build script)
 RUN apt-get update \
   && apt-get install --assume-yes --no-install-recommends \
-    python2.7-minimal libpython2.7-stdlib \
     jq \
     git \
   && rm -rf /var/lib/apt/lists/*
