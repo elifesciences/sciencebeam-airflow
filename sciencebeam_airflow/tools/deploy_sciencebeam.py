@@ -14,7 +14,7 @@ from sciencebeam_airflow.utils.container import (
 )
 from sciencebeam_airflow.utils.subprocess import run_command
 from sciencebeam_airflow.utils.sciencebeam_env import get_namespace
-
+from dags.sciencebeam_dag_utils import get_sciencebeam_image
 
 LOGGER = logging.getLogger(__name__)
 
@@ -23,11 +23,15 @@ def parse_image_name_tag(image):
     return image.split(':')
 
 
+def get_model_sciencebeam_image(model: dict) -> dict:
+    return get_sciencebeam_image(model)
+
+
 def get_base_model_sciencebeam_deploy_args(model: dict) -> Dict[str, str]:
     if 'chart_args' in model:
         return model['chart_args']
     sciencebeam_image_repo, sciencebeam_image_tag = parse_image_name_tag(
-        model['sciencebeam_image']
+        get_model_sciencebeam_image(model)
     )
     grobid_image_repo, grobid_image_tag = parse_image_name_tag(
         model['grobid_image']
@@ -68,7 +72,7 @@ def get_model_sciencebeam_deploy_args(
     helm_args = get_base_model_sciencebeam_deploy_args(model)
     helm_args = add_replica_helm_args(helm_args, replica_count=replica_count)
     if timeout:
-        helm_args['timeout'] = str(timeout)
+        helm_args['timeout'] = str(timeout) + 's'
     return helm_args
 
 
@@ -146,7 +150,11 @@ def run(args: argparse.Namespace):
         LOGGER.info('generated_helm_args: %s', generated_helm_args)
         release_name = args.release_name
         if args.delete:
-            command = get_helm_delete_command(release_name=release_name, purge=True)
+            command = get_helm_delete_command(
+                namespace=args.namespace,
+                release_name=release_name,
+                keep_history=False
+            )
         else:
             command = get_helm_deploy_command(
                 namespace=args.namespace,

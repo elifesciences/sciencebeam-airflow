@@ -16,7 +16,11 @@ from sciencebeam_dag_utils import (
     get_sciencebeam_image
 )
 
-from container_operators import ContainerRunOperator, HelmDeployOperator
+from container_operators import (
+    ContainerRunOperator,
+    HelmDeployOperator,
+    HelmDeleteOperator
+)
 
 
 LOGGER = logging.getLogger(__name__)
@@ -51,18 +55,11 @@ DEFAULT_REPLICA_COUNT = 0  # don't set replica by default
 
 DEPLOY_SCIENCEBEAM_ARGS_TEMPLATE = (
     '''
-    --timeout 600 \
+    --timeout 600s \
     --set "fullnameOverride={{ dag_run.conf.sciencebeam_release_name }}-sb" \
     {% for key, value in get_sciencebeam_deploy_args(dag_run.conf).items() %} \
         --set "{{ key }}={{ value }}" \
     {% endfor %}
-    '''
-)
-
-
-DELETE_SCIENCEBEAM_TEMPLATE = (
-    '''
-    helm delete --purge "{{ dag_run.conf.sciencebeam_release_name }}"
     '''
 )
 
@@ -106,11 +103,15 @@ def parse_image_name_tag(image):
     return image.split(':')
 
 
+def get_model_sciencebeam_image(model: dict) -> dict:
+    return get_sciencebeam_image(model)
+
+
 def get_model_sciencebeam_deploy_args(model: dict) -> dict:
     if 'chart_args' in model:
         return model['chart_args']
     sciencebeam_image_repo, sciencebeam_image_tag = parse_image_name_tag(
-        model['sciencebeam_image']
+        get_model_sciencebeam_image(model)
     )
     grobid_image_repo, grobid_image_tag = parse_image_name_tag(
         model['grobid_image']
@@ -226,10 +227,12 @@ def create_deploy_sciencebeam_op(
 
 
 def create_delete_sciencebeam_op(dag, task_id='delete_sciencebeam'):
-    return BashOperator(
+    return HelmDeleteOperator(
+        dag=dag,
         task_id=task_id,
-        bash_command=DELETE_SCIENCEBEAM_TEMPLATE,
-        dag=dag
+        namespace='{{ dag_run.conf.namespace }}',
+        release_name='{{ dag_run.conf.sciencebeam_release_name }}',
+        keep_history=False
     )
 
 

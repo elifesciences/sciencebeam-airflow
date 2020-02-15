@@ -110,7 +110,7 @@ class TestScienceBeamWatchExperiments:
             }.get
             assert get_default_limit() == '123'
 
-    @pytest.mark.usefixture('get_default_limit_mock', 'get_namespace_mock')
+    @pytest.mark.usefixtures('get_default_limit_mock', 'get_namespace_mock')
     class TestGetConfForExperimentData:
         def test_should_pass_through_model(self):
             assert get_conf_for_experiment_data({

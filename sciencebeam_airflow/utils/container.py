@@ -123,13 +123,19 @@ def get_helm_deploy_command(
     )
 
 
-def get_helm_delete_command(release_name: str, purge=True, helm_args='') -> str:
+def get_helm_delete_command(
+        namespace: str,
+        release_name: str,
+        keep_history: bool = False,
+        helm_args: str = '') -> str:
+    helm_args = helm_args.strip()
     return (
         '''
-        helm delete{purge_arg} {helm_args} "{release_name}"
+        helm uninstall{keep_history_arg}{helm_args} "{release_name}" --namespace="{namespace}"
         '''.format(
+            namespace=namespace,
             release_name=release_name,
-            purge_arg=' --purge' if purge else '',
-            helm_args=helm_args.strip()
+            keep_history_arg=' --keep-history' if keep_history else '',
+            helm_args=' ' + helm_args if helm_args else ''
         ).strip()
     )

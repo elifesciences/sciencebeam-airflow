@@ -3,9 +3,13 @@ from typing import List
 
 import pytest
 
+from dags.sciencebeam_dag_utils import get_sciencebeam_image
+
 from dags.sciencebeam_convert import (
     create_dag,
+    get_model_sciencebeam_image,
     get_sciencebeam_child_chart_names_for_helm_args,
+    create_delete_sciencebeam_op,
     create_deploy_sciencebeam_op,
     create_sciencebeam_convert_op,
     ScienceBeamConvertMacros,
@@ -62,6 +66,13 @@ DEFAULT_CONF = {
 FULL_CHART_NAME = DEFAULT_CONF['sciencebeam_release_name'] + '-sb'
 
 
+def _create_and_render_delete_command(dag, airflow_context: dict) -> str:
+    return create_and_render_command(
+        create_delete_sciencebeam_op(dag=dag),
+        airflow_context
+    )
+
+
 def _create_and_render_deploy_command(dag, airflow_context: dict) -> str:
     return create_and_render_command(
         create_deploy_sciencebeam_op(dag=dag),
@@ -87,6 +98,16 @@ class TestScienceBeamConvert:
     class TestCreateDag:
         def test_should_be_able_to_create_dag(self):
             create_dag()
+
+    class TestGetModelScienceBeamImage:
+        def test_should_return_model_sciencebeam_image(self):
+            assert get_model_sciencebeam_image({
+                'sciencebeam_image': 'image1'
+            }) == 'image1'
+
+        def test_should_return_default_sciencebeam_image_if_not_specified(self):
+            assert get_model_sciencebeam_image({
+            }) == get_sciencebeam_image({})
 
     class TestGetScienceBeamChildChartNamesForHelmArgs:
         def test_should_include_enabled_child_chart(self):
@@ -135,12 +156,25 @@ class TestScienceBeamConvert:
                     }
                 })
 
+    class TestCreateScienceBeamDeleteOp:
+        def test_should_include_namespace(self, dag, airflow_context, dag_run):
+            dag_run.conf = DEFAULT_CONF
+            rendered_bash_command = _create_and_render_delete_command(dag, airflow_context)
+            opt = parse_command_arg(rendered_bash_command, {'--namespace': str})
+            assert getattr(opt, 'namespace') == 'namespace1'
+
     class TestCreateScienceBeamDeployOp:
         def test_should_include_namespace(self, dag, airflow_context, dag_run):
             dag_run.conf = DEFAULT_CONF
             rendered_bash_command = _create_and_render_deploy_command(dag, airflow_context)
             opt = parse_command_arg(rendered_bash_command, {'--namespace': str})
             assert getattr(opt, 'namespace') == 'namespace1'
+
+        def test_should_include_timeout(self, dag, airflow_context, dag_run):
+            dag_run.conf = DEFAULT_CONF
+            rendered_bash_command = _create_and_render_deploy_command(dag, airflow_context)
+            opt = parse_command_arg(rendered_bash_command, {'--timeout': str})
+            assert getattr(opt, 'timeout') == '600s'
 
         def test_should_set_string_options_for_default_grobid_deployment(
                 self, dag, airflow_context, dag_run):
