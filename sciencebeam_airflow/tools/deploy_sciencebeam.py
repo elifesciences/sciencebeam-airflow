@@ -146,7 +146,11 @@ def run(args: argparse.Namespace):
         LOGGER.info('generated_helm_args: %s', generated_helm_args)
         release_name = args.release_name
         if args.delete:
-            command = get_helm_delete_command(release_name=release_name, purge=True)
+            command = get_helm_delete_command(
+                namespace=args.namespace,
+                release_name=release_name,
+                keep_history=False
+            )
         else:
             command = get_helm_deploy_command(
                 namespace=args.namespace,

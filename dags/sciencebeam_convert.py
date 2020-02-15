@@ -16,7 +16,11 @@ from sciencebeam_dag_utils import (
     get_sciencebeam_image
 )
 
-from container_operators import ContainerRunOperator, HelmDeployOperator
+from container_operators import (
+    ContainerRunOperator,
+    HelmDeployOperator,
+    HelmDeleteOperator
+)
 
 
 LOGGER = logging.getLogger(__name__)
@@ -56,13 +60,6 @@ DEPLOY_SCIENCEBEAM_ARGS_TEMPLATE = (
     {% for key, value in get_sciencebeam_deploy_args(dag_run.conf).items() %} \
         --set "{{ key }}={{ value }}" \
     {% endfor %}
-    '''
-)
-
-
-DELETE_SCIENCEBEAM_TEMPLATE = (
-    '''
-    helm delete --purge "{{ dag_run.conf.sciencebeam_release_name }}"
     '''
 )
 
@@ -230,10 +227,12 @@ def create_deploy_sciencebeam_op(
 
 
 def create_delete_sciencebeam_op(dag, task_id='delete_sciencebeam'):
-    return BashOperator(
+    return HelmDeleteOperator(
+        dag=dag,
         task_id=task_id,
-        bash_command=DELETE_SCIENCEBEAM_TEMPLATE,
-        dag=dag
+        namespace='{{ dag_run.conf.namespace }}',
+        release_name='{{ dag_run.conf.sciencebeam_release_name }}',
+        keep_history=False
     )
 
 

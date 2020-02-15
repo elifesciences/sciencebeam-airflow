@@ -6,7 +6,12 @@ from typing import List
 
 import yaml
 
+from airflow.models import DAG
 from airflow.operators.bash_operator import BashOperator
+
+from sciencebeam_airflow.utils.container import (
+    get_helm_delete_command
+)
 
 from sciencebeam_dag_utils import add_dag_macro
 
@@ -181,3 +186,19 @@ class HelmDeployOperator(BashOperator):
     def on_kill(self, *args, **kwargs):  # pylint: disable=arguments-differ
         self._cleanup()
         super().on_kill(*args, **kwargs)
+
+
+class HelmDeleteOperator(BashOperator):
+    def __init__(  # pylint: disable=too-many-arguments
+            self,
+            dag: DAG,
+            namespace: str,
+            release_name: str,
+            keep_history: bool = False,
+            **kwargs):
+        bash_command = get_helm_delete_command(
+            namespace=namespace,
+            release_name=release_name,
+            keep_history=keep_history
+        )
+        super().__init__(dag=dag, bash_command=bash_command, **kwargs)
