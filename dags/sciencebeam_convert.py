@@ -55,7 +55,7 @@ DEFAULT_REPLICA_COUNT = 0  # don't set replica by default
 
 DEPLOY_SCIENCEBEAM_ARGS_TEMPLATE = (
     '''
-    --timeout 600 \
+    --timeout 600s \
     --set "fullnameOverride={{ dag_run.conf.sciencebeam_release_name }}-sb" \
     {% for key, value in get_sciencebeam_deploy_args(dag_run.conf).items() %} \
         --set "{{ key }}={{ value }}" \

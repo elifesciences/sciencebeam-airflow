@@ -170,6 +170,12 @@ class TestScienceBeamConvert:
             opt = parse_command_arg(rendered_bash_command, {'--namespace': str})
             assert getattr(opt, 'namespace') == 'namespace1'
 
+        def test_should_include_timeout(self, dag, airflow_context, dag_run):
+            dag_run.conf = DEFAULT_CONF
+            rendered_bash_command = _create_and_render_deploy_command(dag, airflow_context)
+            opt = parse_command_arg(rendered_bash_command, {'--timeout': str})
+            assert getattr(opt, 'timeout') == '600s'
+
         def test_should_set_string_options_for_default_grobid_deployment(
                 self, dag, airflow_context, dag_run):
             dag_run.conf = DEFAULT_CONF

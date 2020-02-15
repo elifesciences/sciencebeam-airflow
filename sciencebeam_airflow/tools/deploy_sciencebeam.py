@@ -68,7 +68,7 @@ def get_model_sciencebeam_deploy_args(
     helm_args = get_base_model_sciencebeam_deploy_args(model)
     helm_args = add_replica_helm_args(helm_args, replica_count=replica_count)
     if timeout:
-        helm_args['timeout'] = str(timeout)
+        helm_args['timeout'] = str(timeout) + 's'
     return helm_args
 
 
