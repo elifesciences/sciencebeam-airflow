@@ -14,7 +14,7 @@ from sciencebeam_airflow.utils.container import (
 )
 from sciencebeam_airflow.utils.subprocess import run_command
 from sciencebeam_airflow.utils.sciencebeam_env import get_namespace
-
+from dags.sciencebeam_dag_utils import get_sciencebeam_image
 
 LOGGER = logging.getLogger(__name__)
 
@@ -23,11 +23,15 @@ def parse_image_name_tag(image):
     return image.split(':')
 
 
+def get_model_sciencebeam_image(model: dict) -> dict:
+    return get_sciencebeam_image(model)
+
+
 def get_base_model_sciencebeam_deploy_args(model: dict) -> Dict[str, str]:
     if 'chart_args' in model:
         return model['chart_args']
     sciencebeam_image_repo, sciencebeam_image_tag = parse_image_name_tag(
-        model['sciencebeam_image']
+        get_model_sciencebeam_image(model)
     )
     grobid_image_repo, grobid_image_tag = parse_image_name_tag(
         model['grobid_image']
