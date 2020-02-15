@@ -5,6 +5,7 @@ from sciencebeam_airflow.tools.deploy_sciencebeam import (
     get_model_sciencebeam_deploy_args
 )
 
+
 class TestGetModelScienceBeamImage:
     def test_should_return_model_sciencebeam_image(self):
         assert get_model_sciencebeam_image({
