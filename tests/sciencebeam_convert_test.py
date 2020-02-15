@@ -3,8 +3,11 @@ from typing import List
 
 import pytest
 
+from dags.sciencebeam_dag_utils import get_sciencebeam_image
+
 from dags.sciencebeam_convert import (
     create_dag,
+    get_model_sciencebeam_image,
     get_sciencebeam_child_chart_names_for_helm_args,
     create_deploy_sciencebeam_op,
     create_sciencebeam_convert_op,
@@ -87,6 +90,16 @@ class TestScienceBeamConvert:
     class TestCreateDag:
         def test_should_be_able_to_create_dag(self):
             create_dag()
+
+    class TestGetModelScienceBeamImage:
+        def test_should_return_model_sciencebeam_image(self):
+            assert get_model_sciencebeam_image({
+                'sciencebeam_image': 'image1'
+            }) == 'image1'
+
+        def test_should_return_default_sciencebeam_image_if_not_specified(self):
+            assert get_model_sciencebeam_image({
+            }) == get_sciencebeam_image({})
 
     class TestGetScienceBeamChildChartNamesForHelmArgs:
         def test_should_include_enabled_child_chart(self):

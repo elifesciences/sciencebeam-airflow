@@ -106,11 +106,15 @@ def parse_image_name_tag(image):
     return image.split(':')
 
 
+def get_model_sciencebeam_image(model: dict) -> dict:
+    return get_sciencebeam_image(model)
+
+
 def get_model_sciencebeam_deploy_args(model: dict) -> dict:
     if 'chart_args' in model:
         return model['chart_args']
     sciencebeam_image_repo, sciencebeam_image_tag = parse_image_name_tag(
-        model['sciencebeam_image']
+        get_model_sciencebeam_image(model)
     )
     grobid_image_repo, grobid_image_tag = parse_image_name_tag(
         model['grobid_image']
