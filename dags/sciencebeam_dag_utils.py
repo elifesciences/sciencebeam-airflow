@@ -409,7 +409,7 @@ def get_sciencebeam_image(config: dict = None):
 
 
 DEFAULT_SCIENCEBEAM_JUDGE_IMAGE = (
-    'elifesciences/sciencebeam-judge_unstable:7eabb8b7e23d1719b7877a85c6ac7d4044b56172'
+    'elifesciences/sciencebeam-judge_unstable:4afba0a691da2f04f26777b1deb44386546dabf3'
 )
 
 
