@@ -3,7 +3,7 @@ import json
 from pathlib import Path
 from tempfile import mkdtemp
 from shutil import rmtree
-from typing import Callable, List
+from typing import Callable, Dict, List
 
 import yaml
 
@@ -60,6 +60,17 @@ def _get_helm_preemptible_values(child_chart_names: List[str] = None) -> dict:
 def generate_run_name(name: str, suffix: str = '', other_suffix: str = '') -> str:
     name = '-'.join(s for s in [name, suffix, other_suffix] if s)
     return name[:63]
+
+
+def escape_helm_set_value(helm_value: str) -> str:
+    return str(helm_value).replace(',', r'\,')
+
+
+def format_helm_values_as_set_args(helm_values: Dict[str, str]) -> str:
+    return ' '.join([
+        '--set "{key}={value}"'.format(key=key, value=escape_helm_set_value(value))
+        for key, value in helm_values.items()
+    ])
 
 
 class GeneratedHelmDeployArgs:
