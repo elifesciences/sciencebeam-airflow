@@ -9,6 +9,7 @@ from sciencebeam_airflow.utils.io import (
 )
 from sciencebeam_airflow.utils.container import (
     GeneratedHelmDeployArgs,
+    format_helm_values_as_set_args,
     get_helm_deploy_command,
     get_helm_delete_command
 )
@@ -129,14 +130,6 @@ def _load_model_config(model_url: str) -> dict:
     return model_config
 
 
-def format_helm_args(helm_args: Dict[str, str]) -> str:
-    return ' '.join([
-        '--set "{key}={value}"'.format(key=key, value=value)
-        for key, value in helm_args.items()
-    ])
-
-
-
 def run(args: argparse.Namespace):
     model_config = _load_model_config(args.model_url)
     helm_args = get_model_sciencebeam_deploy_args(
@@ -160,8 +153,12 @@ def run(args: argparse.Namespace):
                 namespace=args.namespace,
                 release_name=release_name,
                 chart_name='$HELM_CHARTS_DIR/sciencebeam',
-                helm_args=' '.join([generated_helm_args, format_helm_args(helm_args)])
+                helm_args=' '.join([
+                    generated_helm_args,
+                    format_helm_values_as_set_args(helm_args)
+                ])
             )
+        LOGGER.info('command: %s', command)
         run_command(command, shell=True)
 
 

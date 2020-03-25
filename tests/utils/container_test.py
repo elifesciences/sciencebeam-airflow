@@ -1,6 +1,15 @@
 from sciencebeam_airflow.utils.container import (
+    escape_helm_set_value,
     get_helm_delete_command
 )
+
+
+class TestEscapeHelmSetValue:
+    def test_should_escape_comma(self):
+        assert escape_helm_set_value('a,b') == r'a\,b'
+
+    def test_should_convert_int_to_str(self):
+        assert escape_helm_set_value(123) == '123'
 
 
 class TestGetHelmDeleteCommand:

@@ -207,6 +207,21 @@ class TestScienceBeamConvert:
                 'fullnameOverride': FULL_CHART_NAME
             }
 
+        def test_should_escape_set_options_for_deployment(
+                self, dag, airflow_context, dag_run):
+            dag_run.conf = {
+                **DEFAULT_CONF,
+                'model': {
+                    'chart_args': {
+                        'extra': 'a,b'
+                    }
+                }
+            }
+            rendered_bash_command = _create_and_render_deploy_command(dag, airflow_context)
+            opt = parse_command_arg(rendered_bash_command, {'--set': [str]})
+            set_string_map = _parse_set_string_list(getattr(opt, 'set'))
+            assert set_string_map.get('extra') == r'a\,b'
+
         def test_should_set_replica_count_if_configured(
                 self, dag, airflow_context, dag_run):
             dag_run.conf = {

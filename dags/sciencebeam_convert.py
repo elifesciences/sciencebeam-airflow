@@ -6,6 +6,8 @@ from airflow.operators.bash_operator import BashOperator
 from airflow.operators.dagrun_operator import DagRunOrder
 from airflow.models import DAG, DagRun
 
+from sciencebeam_airflow.utils.container import escape_helm_set_value
+
 from sciencebeam_dag_ids import ScienceBeamDagIds
 
 from sciencebeam_dag_utils import (
@@ -58,7 +60,7 @@ DEPLOY_SCIENCEBEAM_ARGS_TEMPLATE = (
     --timeout 600s \
     --set "fullnameOverride={{ dag_run.conf.sciencebeam_release_name }}-sb" \
     {% for key, value in get_sciencebeam_deploy_args(dag_run.conf).items() %} \
-        --set "{{ key }}={{ value }}" \
+        --set "{{ key }}={{ escape_helm_set_value(value) }}" \
     {% endfor %}
     '''
 )
@@ -181,6 +183,9 @@ class ScienceBeamConvertMacros:
             for child_chart_name in child_chart_names:
                 helm_args['%s.replicaCount' % child_chart_name] = replica_count
         return helm_args
+
+    def escape_helm_set_value(self, helm_value: str) -> str:
+        return escape_helm_set_value(helm_value)
 
     def get_sciencebeam_child_chart_names(
             self, dag_run: DagRun, **_) -> List[str]:
