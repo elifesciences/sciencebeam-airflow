@@ -237,7 +237,8 @@ def create_delete_sciencebeam_op(dag, task_id='delete_sciencebeam'):
         task_id=task_id,
         namespace='{{ dag_run.conf.namespace }}',
         release_name='{{ dag_run.conf.sciencebeam_release_name }}',
-        keep_history=False
+        keep_history=False,
+        trigger_rule='all_done'
     )
 
 
