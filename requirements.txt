@@ -1,5 +1,5 @@
 gcloud==0.18.3
-google-api-python-client==1.8.0
+google-api-python-client==1.8.4
 google-cloud-storage==1.27.0
 kubernetes==11.0.0
 psycopg2-binary==2.8.4
