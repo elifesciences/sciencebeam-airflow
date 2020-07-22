@@ -75,6 +75,7 @@ AUTOCUT_EVAL_OUTPUT_PATH = $(AUTOCUT_OUTPUT_DATA_PATH)/evaluation-results
 
 SCIENCEBEAM_CHARTS_COMMIT = $(shell bash -c 'source .env && echo $$SCIENCEBEAM_CHARTS_COMMIT')
 
+FIELDS =
 SCORING_TYPE_OVERRIDES =
 
 WORKER_COUNT = 10
@@ -294,6 +295,7 @@ trigger-helm-version:
 				"replica_count": "$(REPLICA_COUNT)" \
 			}, \
 			"evaluate": { \
+				"fields": "$(FIELDS)", \
 				"scoring_type_overrides": "$(SCORING_TYPE_OVERRIDES)" \
 			} \
 		}, \

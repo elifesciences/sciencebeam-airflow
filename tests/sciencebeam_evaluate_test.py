@@ -65,7 +65,7 @@ class TestScienceBeamEvaluate:
                 self, dag, airflow_context, dag_run):
             dag_run.conf = {
                 **DEFAULT_CONF,
-                'fields': ''
+                'config': {}
             }
             rendered_bash_command = _create_and_render_evaluate_command(dag, airflow_context)
             opt = parse_command_arg(rendered_bash_command, {'--fields': str})
@@ -74,7 +74,11 @@ class TestScienceBeamEvaluate:
         def test_should_include_configured_fields(self, dag, airflow_context, dag_run):
             dag_run.conf = {
                 **DEFAULT_CONF,
-                'fields': FIELD_1
+                'config': {
+                    'evaluate': {
+                        'fields': FIELD_1
+                    }
+                }
             }
             rendered_bash_command = _create_and_render_evaluate_command(dag, airflow_context)
             opt = parse_command_arg(rendered_bash_command, {'--fields': str})

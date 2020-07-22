@@ -52,8 +52,8 @@ SCIENCEBEAM_EVALUATE_TEMPLATE = (
         --prediction-file-list \
         "{{ dag_run.conf.output_data_path }}/{{ dag_run.conf.output_file_list }}" \
         --output-path "{{ dag_run.conf.eval_output_path }}" \
-        {% if dag_run.conf.fields %} \
-            --fields "{{ dag_run.conf.fields }}" \
+        {% if dag_run.conf.get('config', {}).get('evaluate', {}).fields %} \
+            --fields "{{ dag_run.conf.config.evaluate.fields }}" \
         {% endif %} \
         {% if dag_run.conf.get('config', {}).get('evaluate', {}).scoring_type_overrides %} \
             --scoring-type-overrides "{{ dag_run.conf.config.evaluate.scoring_type_overrides }}" \
