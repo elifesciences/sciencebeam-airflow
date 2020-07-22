@@ -84,6 +84,29 @@ class TestScienceBeamEvaluate:
             opt = parse_command_arg(rendered_bash_command, {'--fields': str})
             assert getattr(opt, 'fields') == FIELD_1
 
+        def test_should_not_pass_metrics_argument_if_not_configured(
+                self, dag, airflow_context, dag_run):
+            dag_run.conf = {
+                **DEFAULT_CONF,
+                'config': {}
+            }
+            rendered_bash_command = _create_and_render_evaluate_command(dag, airflow_context)
+            opt = parse_command_arg(rendered_bash_command, {'--measures': str})
+            assert getattr(opt, 'measures') is None
+
+        def test_should_include_configured_metrics(self, dag, airflow_context, dag_run):
+            dag_run.conf = {
+                **DEFAULT_CONF,
+                'config': {
+                    'evaluate': {
+                        'measures': 'measure1'
+                    }
+                }
+            }
+            rendered_bash_command = _create_and_render_evaluate_command(dag, airflow_context)
+            opt = parse_command_arg(rendered_bash_command, {'--measures': str})
+            assert getattr(opt, 'measures') == 'measure1'
+
         def test_should_not_pass_scoring_type_overrides_argument_if_not_configured(
                 self, dag, airflow_context, dag_run):
             dag_run.conf = {

@@ -55,6 +55,9 @@ SCIENCEBEAM_EVALUATE_TEMPLATE = (
         {% if dag_run.conf.get('config', {}).get('evaluate', {}).fields %} \
             --fields "{{ dag_run.conf.config.evaluate.fields }}" \
         {% endif %} \
+        {% if dag_run.conf.get('config', {}).get('evaluate', {}).measures %} \
+            --measures "{{ dag_run.conf.config.evaluate.measures }}" \
+        {% endif %} \
         {% if dag_run.conf.get('config', {}).get('evaluate', {}).scoring_type_overrides %} \
             --scoring-type-overrides "{{ dag_run.conf.config.evaluate.scoring_type_overrides }}" \
         {% endif %} \
