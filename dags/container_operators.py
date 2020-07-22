@@ -179,7 +179,7 @@ class HelmDeployOperator(BashOperator):
             return f'--values {values_file.absolute()}'
         return ''
 
-    def post_execute(self, *args, **kwargs):  # pylint: disable=arguments-differ
+    def post_execute(self, *args, **kwargs):  # pylint: disable=arguments-differ, signature-differs
         self._cleanup()
         super().post_execute(*args, **kwargs)
 
