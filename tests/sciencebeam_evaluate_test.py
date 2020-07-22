@@ -80,6 +80,27 @@ class TestScienceBeamEvaluate:
             opt = parse_command_arg(rendered_bash_command, {'--fields': str})
             assert getattr(opt, 'fields') == FIELD_1
 
+        def test_should_not_pass_scoring_type_overrides_argument_if_not_configured(
+                self, dag, airflow_context, dag_run):
+            dag_run.conf = {
+                **DEFAULT_CONF,
+                'scoring_type_overrides': ''
+            }
+            rendered_bash_command = _create_and_render_evaluate_command(dag, airflow_context)
+            opt = parse_command_arg(rendered_bash_command, {'--scoring-type-overrides': str})
+            assert getattr(opt, 'scoring_type_overrides') is None
+
+        def test_should_include_configured_scoring_type_overrides(
+                self, dag, airflow_context, dag_run):
+            scoring_type_overrides = 'field1=type1|field2=type2'
+            dag_run.conf = {
+                **DEFAULT_CONF,
+                'scoring_type_overrides': scoring_type_overrides
+            }
+            rendered_bash_command = _create_and_render_evaluate_command(dag, airflow_context)
+            opt = parse_command_arg(rendered_bash_command, {'--scoring-type-overrides': str})
+            assert getattr(opt, 'scoring_type_overrides') == scoring_type_overrides
+
         def test_should_include_target_file_list(self, dag, airflow_context, dag_run):
             dag_run.conf = {
                 **DEFAULT_CONF,
