@@ -47,7 +47,7 @@ def get_file_list_path(output_data_path: str, dataset: dict, limit: int) -> str:
     if dataset_subset_name:
         suffix = f'-{dataset_subset_name}'
     else:
-        suffix = f''
+        suffix = ''
     if limit:
         suffix += f'-{limit}'
     return os.path.join(output_data_path, f'file-list{suffix}.lst')
@@ -61,7 +61,7 @@ def get_eval_output_path(output_data_path: str, dataset: dict, limit: int) -> st
     elif dataset_subset_name:
         folder_name = f'{dataset_subset_name}'
     else:
-        folder_name = f'all'
+        folder_name = 'all'
     if limit:
         folder_name += f'-{limit}'
     return os.path.join(output_data_path, f'evaluation-results/{folder_name}')
