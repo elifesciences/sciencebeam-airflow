@@ -84,7 +84,7 @@ class TestScienceBeamEvaluate:
                 self, dag, airflow_context, dag_run):
             dag_run.conf = {
                 **DEFAULT_CONF,
-                'scoring_type_overrides': ''
+                'config': {}
             }
             rendered_bash_command = _create_and_render_evaluate_command(dag, airflow_context)
             opt = parse_command_arg(rendered_bash_command, {'--scoring-type-overrides': str})
@@ -95,7 +95,11 @@ class TestScienceBeamEvaluate:
             scoring_type_overrides = 'field1=type1|field2=type2'
             dag_run.conf = {
                 **DEFAULT_CONF,
-                'scoring_type_overrides': scoring_type_overrides
+                'config': {
+                    'evaluate': {
+                        'scoring_type_overrides': scoring_type_overrides
+                    }
+                }
             }
             rendered_bash_command = _create_and_render_evaluate_command(dag, airflow_context)
             opt = parse_command_arg(rendered_bash_command, {'--scoring-type-overrides': str})
