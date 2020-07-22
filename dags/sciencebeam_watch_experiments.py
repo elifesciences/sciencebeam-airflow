@@ -183,7 +183,7 @@ def get_conf_for_experiment_data(experiment_data):  # pylint: disable=too-many-l
     )
     limit = experiment_data.get('limit', dataset.get('limit', default_limit))
     output_file_list = get_file_list_path(output_data_path, dataset=dataset, limit=limit)
-    output_suffix = f'.xml.gz'
+    output_suffix = '.xml.gz'
     eval_output_path = get_eval_output_path(output_data_path, dataset=dataset, limit=limit)
     resume = parse_bool(experiment_data.get('resume', True))
     return remove_none({

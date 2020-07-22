@@ -138,7 +138,7 @@ class TestScienceBeamWatchExperiments:
             assert get_conf_for_experiment_data({
                 **DEFAULT_EXPERIMENT_DATA
             })['output_file_list'] == (
-                f'file-list.lst'
+                'file-list.lst'
             )
 
         def test_should_include_dataset_subset_name_in_output_file_list(self):
@@ -163,7 +163,7 @@ class TestScienceBeamWatchExperiments:
         def test_should_determine_output_suffix(self):
             assert get_conf_for_experiment_data({
                 **DEFAULT_EXPERIMENT_DATA
-            })['output_suffix'] == f'.xml.gz'
+            })['output_suffix'] == '.xml.gz'
 
         def test_should_determine_eval_output_path(self):
             assert get_conf_for_experiment_data({
