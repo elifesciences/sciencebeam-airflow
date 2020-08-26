@@ -1,1 +1,1 @@
-apache-airflow[crypto,celery,ssh]==1.10.11
+apache-airflow[crypto,celery,ssh]==1.10.12
