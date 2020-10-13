@@ -197,6 +197,23 @@ class TestScienceBeamWatchExperiments:
                 f'{DEFAULT_MODEL_NAME}/evaluation-results/{DATASET_EVAL_NAME_1}'
             )
 
+        def test_should_prefer_eval_name_from_config_evaluate(self):
+            assert get_conf_for_experiment_data({
+                **DEFAULT_EXPERIMENT_DATA,
+                'config': {
+                    'evaluate': {
+                        'eval_name': DATASET_EVAL_NAME_1
+                    }
+                },
+                'dataset': {
+                    **DEFAULT_EXPERIMENT_DATA['dataset'],
+                    'eval_name': 'other'
+                }
+            })['eval_output_path'] == (
+                f'{DEFAULT_SOURCE_DATA_PATH}-results/{NAMESPACE_1}/'
+                f'{DEFAULT_MODEL_NAME}/evaluation-results/{DATASET_EVAL_NAME_1}'
+            )
+
         def test_should_include_subset_name_and_limit_in_eval_output_path(self):
             assert get_conf_for_experiment_data({
                 **DEFAULT_EXPERIMENT_DATA,
