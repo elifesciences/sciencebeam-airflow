@@ -326,8 +326,10 @@ def _trigger_next_task_fn(**kwargs):
         return
     try:
         task_index = tasks.index(dag_id)
-    except ValueError:
-        raise ValueError('current dag not found in task list, "%s" not in  %s' % (dag_id, tasks))
+    except ValueError as exc:
+        raise ValueError(
+            'current dag not found in task list, "%s" not in  %s' % (dag_id, tasks)
+        ) from exc
     LOGGER.info('current dag task index: %d', task_index)
     if task_index + 1 == len(tasks):
         LOGGER.info('last tasks, skipping')
