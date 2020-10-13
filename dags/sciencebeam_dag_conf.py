@@ -53,8 +53,12 @@ def get_file_list_path(output_data_path: str, dataset: dict, limit: int) -> str:
     return os.path.join(output_data_path, f'file-list{suffix}.lst')
 
 
-def get_eval_output_path(output_data_path: str, dataset: dict, limit: int) -> str:
-    dataset_eval_name = dataset.get('eval_name')
+def get_eval_output_path(
+        output_data_path: str,
+        dataset: dict,
+        limit: int,
+        eval_name: str = None) -> str:
+    dataset_eval_name = eval_name or dataset.get('eval_name')
     dataset_subset_name = dataset.get('subset_name')
     if dataset_eval_name:
         folder_name = f'{dataset_eval_name}'
