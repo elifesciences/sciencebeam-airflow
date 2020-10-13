@@ -4,4 +4,9 @@ disable=
     too-few-public-methods,
     too-many-public-methods,
     no-self-use,
-    duplicate-code
+    duplicate-code,
+    wrong-import-order
+
+[IMPORTS]
+known-third-party=
+    airflow
