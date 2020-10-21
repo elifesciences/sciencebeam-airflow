@@ -84,6 +84,20 @@ class TestScienceBeamEvaluate:
             opt = parse_command_arg(rendered_bash_command, {'--fields': str})
             assert getattr(opt, 'fields') == FIELD_1
 
+        def test_should_include_configured_fields_starting_with_hyphen(
+                self, dag, airflow_context, dag_run):
+            dag_run.conf = {
+                **DEFAULT_CONF,
+                'config': {
+                    'evaluate': {
+                        'fields': '-' + FIELD_1
+                    }
+                }
+            }
+            rendered_bash_command = _create_and_render_evaluate_command(dag, airflow_context)
+            opt = parse_command_arg(rendered_bash_command, {'--fields': str})
+            assert getattr(opt, 'fields') == '-' + FIELD_1
+
         def test_should_not_pass_metrics_argument_if_not_configured(
                 self, dag, airflow_context, dag_run):
             dag_run.conf = {

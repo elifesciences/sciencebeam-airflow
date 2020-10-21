@@ -51,19 +51,19 @@ SCIENCEBEAM_EVALUATE_TEMPLATE = (
         --target-file-column=xml_url \
         --prediction-file-list \
         "{{ dag_run.conf.output_data_path }}/{{ dag_run.conf.output_file_list }}" \
-        --output-path "{{ dag_run.conf.eval_output_path }}" \
+        --output-path="{{ dag_run.conf.eval_output_path }}" \
         {% if dag_run.conf.get('config', {}).get('evaluate', {}).fields %} \
-            --fields "{{ dag_run.conf.config.evaluate.fields }}" \
+            --fields="{{ dag_run.conf.config.evaluate.fields }}" \
         {% endif %} \
         {% if dag_run.conf.get('config', {}).get('evaluate', {}).measures %} \
-            --measures "{{ dag_run.conf.config.evaluate.measures }}" \
+            --measures="{{ dag_run.conf.config.evaluate.measures }}" \
         {% endif %} \
         {% if dag_run.conf.get('config', {}).get('evaluate', {}).scoring_type_overrides %} \
-            --scoring-type-overrides "{{ dag_run.conf.config.evaluate.scoring_type_overrides }}" \
+            --scoring-type-overrides="{{ dag_run.conf.config.evaluate.scoring_type_overrides }}" \
         {% endif %} \
         --num_workers=10 \
         --skip-errors \
-        --limit "{{ dag_run.conf.limit }}"
+        --limit="{{ dag_run.conf.limit }}"
     '''
 )
 
