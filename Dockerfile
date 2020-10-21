@@ -1,4 +1,4 @@
-FROM puckel/docker-airflow:1.10.9
+FROM apache/airflow:1.10.12
 
 USER root
 
@@ -33,7 +33,7 @@ ENV PATH /usr/local/airflow/.local/bin:$PATH
 COPY --chown=airflow:airflow requirements.txt ./
 RUN pip install --user -r requirements.txt
 
-ARG install_dev
+ARG install_dev="n"
 COPY --chown=airflow:airflow requirements.dev.txt ./
 RUN if [ "${install_dev}" = "y" ]; then pip install --user -r requirements.dev.txt; fi
 
