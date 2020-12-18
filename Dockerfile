@@ -1,4 +1,4 @@
-FROM puckel/docker-airflow:1.10.9
+FROM apache/airflow:1.10.13-python3.6
 
 USER root
 
@@ -25,27 +25,29 @@ RUN mkdir -p /usr/local/gcloud \
     && /usr/local/gcloud/google-cloud-sdk/install.sh
 
 USER airflow
+ENV AIRFLOW_HOME=/opt/airflow
+ENV AIRFLOW_USER_HOME=/home/airflow
 
 ENV PATH /usr/local/gcloud/google-cloud-sdk/bin:$PATH
 
-ENV PATH /usr/local/airflow/.local/bin:$PATH
+ENV PATH ${AIRFLOW_USER_HOME}/.local/bin:$PATH
 
 COPY --chown=airflow:airflow requirements.txt ./
 RUN pip install --user -r requirements.txt
 
-ARG install_dev
+ARG install_dev=n
 COPY --chown=airflow:airflow requirements.dev.txt ./
 RUN if [ "${install_dev}" = "y" ]; then pip install --user -r requirements.dev.txt; fi
 
 COPY --chown=airflow:airflow dags ./dags
 
-ENV DOCKER_SCRIPTS_DIR=/usr/local/airflow/docker
+ENV DOCKER_SCRIPTS_DIR=${AIRFLOW_HOME}/docker
 COPY --chown=airflow:airflow docker "${DOCKER_SCRIPTS_DIR}"
 
-ENV HELM_CHARTS_DIR=/usr/local/airflow/helm
+ENV HELM_CHARTS_DIR=${AIRFLOW_HOME}/helm
 COPY --chown=airflow:airflow helm ${HELM_CHARTS_DIR}
 RUN cd ${HELM_CHARTS_DIR}/sciencebeam \
-  && helm repo add stable https://kubernetes-charts.storage.googleapis.com \
+  # && helm repo add stable https://kubernetes-charts.storage.googleapis.com \
   && helm dep update
 
 COPY --chown=airflow:airflow sciencebeam_airflow ./sciencebeam_airflow

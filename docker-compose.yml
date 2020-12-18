@@ -7,6 +7,9 @@ x-airflow-env:
   - EXECUTOR=Celery
   - POSTGRES_HOST=airflow-postgres
   - REDIS_HOST=airflow-redis
+  - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@airflow-postgres:5432/airflow
+  - AIRFLOW__CELERY__BROKER_URL=redis://airflow-redis:6379/1
+  - AIRFLOW__CELERY__RESULT_BACKEND=db+postgresql://airflow:airflow@postgres/airflow
   - SCIENCEBEAM_NAMESPACE=${SCIENCEBEAM_NAMESPACE}
   - SCIENCEBEAM_CONFIG_DATA_PATH=${SCIENCEBEAM_CONFIG_DATA_PATH}
   - SCIENCEBEAM_JUDGE_IMAGE=${SCIENCEBEAM_JUDGE_IMAGE}
@@ -21,6 +24,7 @@ services:
       context: .
     image: ${AIRFLOW_IMAGE_NAME}:${IMAGE_TAG}
     command: /bin/sh -c exit 0
+    entrypoint: []
 
   airflow-dev-base-image:
     build:

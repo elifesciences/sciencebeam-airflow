@@ -190,6 +190,10 @@ deploy-sciencebeam:
 		python -m sciencebeam_airflow.tools.deploy_sciencebeam $(ARGS)
 
 
+airflow-initdb:
+	$(DOCKER_COMPOSE) run --rm  airflow-webserver initdb
+
+
 start: helm-charts-update
 	$(eval SERVICE_NAMES = $(shell docker-compose config --services | grep -v 'airflow-dev'))
 	$(DOCKER_COMPOSE) up --build -d --scale airflow-worker=2 $(SERVICE_NAMES)
