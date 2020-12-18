@@ -22,7 +22,7 @@ We are using the [Puckel Airflow Image](https://github.com/puckel/docker-airflow
 
 Airflow, using the [Puckel Airflow Image](https://github.com/puckel/docker-airflow), is mainly configured in the following way:
 
-* Environment variables interpreted by the [entrypoint](https://github.com/puckel/docker-airflow/blob/master/script/entrypoint.sh), e.g. `POSTGRES_HOST`
+* Environment variables interpreted by the [entrypoint](https://github.com/apache/airflow/blob/master/scripts/in_container/prod/entrypoint_prod.sh), e.g. `POSTGRES_HOST`
 * Environment variables interpreted by [Airflow](http://airflow.apache.org/howto/set-config.html), e.g. `AIRFLOW__CORE__SQL_ALCHEMY_CONN`
 * Default configuration in the [airflow.cfg](https://github.com/puckel/docker-airflow/blob/master/config/airflow.cfg) file
 * Default configuration by the Airflow project in [default_airflow.cfg](https://github.com/apache/airflow/blob/master/airflow/config_templates/default_airflow.cfg)

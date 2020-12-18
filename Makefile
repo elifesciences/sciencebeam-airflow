@@ -220,7 +220,7 @@ web-shell:
 
 
 web-exec:
-	$(DOCKER_COMPOSE) exec airflow-webserver /entrypoint.sh bash
+	$(DOCKER_COMPOSE) exec airflow-webserver /entrypoint bash
 
 
 worker-shell:
@@ -228,39 +228,39 @@ worker-shell:
 
 
 worker-exec:
-	$(DOCKER_COMPOSE) exec airflow-worker /entrypoint.sh bash
+	$(DOCKER_COMPOSE) exec airflow-worker /entrypoint bash
 
 
 dags-list:
-	$(DOCKER_COMPOSE) exec airflow-webserver /entrypoint.sh airflow list_dags
+	$(DOCKER_COMPOSE) exec airflow-webserver /entrypoint list_dags
 
 
 dags-unpause:
 	$(eval DAG_IDS = $(shell \
-		$(DOCKER_COMPOSE) exec airflow-webserver /entrypoint.sh airflow list_dags \
+		$(DOCKER_COMPOSE) exec airflow-webserver /entrypoint list_dags \
 		| grep -P "^(sciencebeam_|grobid_)\S+" \
 	))
 	@echo DAG_IDS=$(DAG_IDS)
 	@for DAG_ID in $(DAG_IDS); do \
 		echo DAG_ID=$${DAG_ID}; \
-		$(DOCKER_COMPOSE) exec airflow-webserver /entrypoint.sh airflow unpause $${DAG_ID}; \
+		$(DOCKER_COMPOSE) exec airflow-webserver /entrypoint unpause $${DAG_ID}; \
 	done
 
 
 tasks-list:
-	$(DOCKER_COMPOSE) exec airflow-webserver /entrypoint.sh airflow list_tasks $(ARGS)
+	$(DOCKER_COMPOSE) exec airflow-webserver /entrypoint list_tasks $(ARGS)
 
 
 trigger-gs-list-buckets:
-	$(DOCKER_COMPOSE) exec airflow-webserver /entrypoint.sh airflow trigger_dag gs_list_buckets
+	$(DOCKER_COMPOSE) exec airflow-webserver /entrypoint trigger_dag gs_list_buckets
 
 
 trigger-kube-list-pods:
-	$(DOCKER_COMPOSE) exec airflow-webserver /entrypoint.sh airflow trigger_dag kube_list_pods
+	$(DOCKER_COMPOSE) exec airflow-webserver /entrypoint trigger_dag kube_list_pods
 
 
 trigger-helm-version:
-	$(DOCKER_COMPOSE) exec airflow-webserver /entrypoint.sh airflow trigger_dag helm_version
+	$(DOCKER_COMPOSE) exec airflow-webserver /entrypoint trigger_dag helm_version
 
 
 .run_id:
@@ -323,21 +323,21 @@ trigger-helm-version:
 
 
 trigger-sciencebeam-convert: .run_id .sciencebeam-convert-eval-conf
-	$(DOCKER_COMPOSE) exec airflow-webserver /entrypoint.sh airflow trigger_dag \
+	$(DOCKER_COMPOSE) exec airflow-webserver /entrypoint trigger_dag \
 		--run_id "$(RUN_ID)" \
 		--conf "$$SCIENCEBEAM_CONVERT_EVAL_CONF" \
 		sciencebeam_convert
 
 
 trigger-sciencebeam-evaluate: .run_id .sciencebeam-convert-eval-conf
-	$(DOCKER_COMPOSE) exec airflow-webserver /entrypoint.sh airflow trigger_dag \
+	$(DOCKER_COMPOSE) exec airflow-webserver /entrypoint trigger_dag \
 		--run_id "$(RUN_ID)" \
 		--conf "$$SCIENCEBEAM_CONVERT_EVAL_CONF" \
 		sciencebeam_evaluate
 
 
 trigger-sciencebeam-evaluation-results-to-bq: .run_id .sciencebeam-convert-eval-conf
-	docker-compose exec airflow-webserver /entrypoint.sh airflow trigger_dag \
+	docker-compose exec airflow-webserver /entrypoint trigger_dag \
 		--run_id "$(RUN_ID)" \
 		--conf "$$SCIENCEBEAM_CONVERT_EVAL_CONF" \
 		sciencebeam_evaluation_results_to_bq
@@ -385,35 +385,35 @@ trigger-sciencebeam-evaluation-results-to-bq: .run_id .sciencebeam-convert-eval-
 
 
 trigger-grobid-train-prepare: .run_id .grobid-train-conf
-	docker-compose exec airflow-webserver /entrypoint.sh airflow trigger_dag \
+	docker-compose exec airflow-webserver /entrypoint trigger_dag \
 		--run_id "$(RUN_ID)" \
 		--conf "$$SCIENCEBEAM_TRAIN_CONF" \
 		grobid_train_prepare
 
 
 trigger-grobid-train-evaluate: .run_id .grobid-train-conf
-	docker-compose exec airflow-webserver /entrypoint.sh airflow trigger_dag \
+	docker-compose exec airflow-webserver /entrypoint trigger_dag \
 		--run_id "$(RUN_ID)" \
 		--conf "$$SCIENCEBEAM_TRAIN_CONF" \
 		grobid_train_evaluate
 
 
 trigger-grobid-train-model: .run_id .grobid-train-conf
-	docker-compose exec airflow-webserver /entrypoint.sh airflow trigger_dag \
+	docker-compose exec airflow-webserver /entrypoint trigger_dag \
 		--run_id "$(RUN_ID)" \
 		--conf "$$SCIENCEBEAM_TRAIN_CONF" \
 		grobid_train_model
 
 
 trigger-grobid-build-image: .run_id .grobid-train-conf
-	docker-compose exec airflow-webserver /entrypoint.sh airflow trigger_dag \
+	docker-compose exec airflow-webserver /entrypoint trigger_dag \
 		--run_id "$(RUN_ID)" \
 		--conf "$$SCIENCEBEAM_TRAIN_CONF" \
 		grobid_build_image
 
 
 trigger-grobid-train-evaluate-source-dataset: .run_id .grobid-train-conf
-	docker-compose exec airflow-webserver /entrypoint.sh airflow trigger_dag \
+	docker-compose exec airflow-webserver /entrypoint trigger_dag \
 		--run_id "$(RUN_ID)" \
 		--conf "$$SCIENCEBEAM_TRAIN_CONF" \
 		grobid_train_evaluate_source_dataset
@@ -485,35 +485,35 @@ trigger-grobid-train-evaluate-source-dataset: .run_id .grobid-train-conf
 
 
 trigger-sciencebeam-autocut-convert-training-data: .run_id .sciencebeam-autocut-train-conf
-	docker-compose exec airflow-webserver /entrypoint.sh airflow trigger_dag \
+	docker-compose exec airflow-webserver /entrypoint trigger_dag \
 		--run_id "$(RUN_ID)" \
 		--conf "$$SCIENCEBEAM_AUTOCUT_TRAIN_CONF" \
 		sciencebeam_autocut_convert_training_data
 
 
 trigger-sciencebeam-autocut-train-model: .run_id .sciencebeam-autocut-train-conf
-	docker-compose exec airflow-webserver /entrypoint.sh airflow trigger_dag \
+	docker-compose exec airflow-webserver /entrypoint trigger_dag \
 		--run_id "$(RUN_ID)" \
 		--conf "$$SCIENCEBEAM_AUTOCUT_TRAIN_CONF" \
 		sciencebeam_autocut_train_model
 
 
 trigger-sciencebeam-autocut-build-image: .run_id .sciencebeam-autocut-train-conf
-	docker-compose exec airflow-webserver /entrypoint.sh airflow trigger_dag \
+	docker-compose exec airflow-webserver /entrypoint trigger_dag \
 		--run_id "$(RUN_ID)" \
 		--conf "$$SCIENCEBEAM_AUTOCUT_TRAIN_CONF" \
 		sciencebeam_autocut_build_image
 
 
 trigger-sciencebeam-autocut-convert-and-evaluate: .run_id .sciencebeam-autocut-train-conf
-	docker-compose exec airflow-webserver /entrypoint.sh airflow trigger_dag \
+	docker-compose exec airflow-webserver /entrypoint trigger_dag \
 		--run_id "$(RUN_ID)" \
 		--conf "$$SCIENCEBEAM_AUTOCUT_TRAIN_CONF" \
 		sciencebeam_convert
 
 
 trigger-sciencebeam-watch:
-	$(DOCKER_COMPOSE) exec airflow-webserver /entrypoint.sh airflow trigger_dag sciencebeam_watch_experiments
+	$(DOCKER_COMPOSE) exec airflow-webserver /entrypoint trigger_dag sciencebeam_watch_experiments
 
 
 ci-build-and-test:
