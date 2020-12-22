@@ -96,14 +96,14 @@ venv-create:
 
 
 dev-install:
-	$(PIP) install -r requirements.build.txt
+	$(PIP) install --disable-pip-version-check -r requirements.build.txt
 
 	export AIRFLOW_GPL_UNIDECODE=yes
-	$(PIP) install -r requirements.prereq.txt
+	$(PIP) install --disable-pip-version-check -r requirements.prereq.txt
 
-	$(PIP) install -e .
+	$(PIP) install --disable-pip-version-check -e .
 
-	$(PIP) install -r requirements.dev.txt
+	$(PIP) install --disable-pip-version-check -r requirements.dev.txt
 
 
 dev-venv: venv-create dev-install
