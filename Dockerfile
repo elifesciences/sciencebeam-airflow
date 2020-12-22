@@ -32,15 +32,18 @@ ENV PATH /usr/local/gcloud/google-cloud-sdk/bin:$PATH
 
 ENV PATH ${AIRFLOW_USER_HOME}/.local/bin:$PATH
 
+COPY --chown=airflow:airflow requirements.build.txt ./
+RUN pip install --disable-pip-version-check --user -r requirements.build.txt
+
 COPY --chown=airflow:airflow requirements.prereq.txt ./
-RUN pip install --user -r requirements.prereq.txt
+RUN pip install --disable-pip-version-check --user -r requirements.prereq.txt
 
 COPY --chown=airflow:airflow requirements.txt ./
-RUN pip install --user -r requirements.txt
+RUN pip install --disable-pip-version-check --user -r requirements.txt
 
 ARG install_dev=n
 COPY --chown=airflow:airflow requirements.dev.txt ./
-RUN if [ "${install_dev}" = "y" ]; then pip install --user -r requirements.dev.txt; fi
+RUN if [ "${install_dev}" = "y" ]; then pip install --disable-pip-version-check --user -r requirements.dev.txt; fi
 
 COPY --chown=airflow:airflow dags ./dags
 
