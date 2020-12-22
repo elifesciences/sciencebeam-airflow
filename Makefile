@@ -21,8 +21,8 @@ GCP_PROJECT = elife-ml
 SCIENCEBEAM_CHARTS_DIR = ../sciencebeam-charts
 
 SCIENCEBEAM_ADHOC_RELEASE_NAME = sciencebeam-adhoc-$(shell date +%s -u)--$(SCIENCEBEAM_NAMESPACE)
-SCIENCEBEAM_IMAGE_REPO = elifesciences/sciencebeam_unstable
-SCIENCEBEAM_IMAGE_TAG = b1670060bfea2a1c0bdeb0cb88b2fd65f307d1af
+SCIENCEBEAM_IMAGE_REPO = elifesciences/sciencebeam
+SCIENCEBEAM_IMAGE_TAG = 0.0.8
 SCIENCEBEAM_ARGS = --no-grobid-xslt
 GROBID_IMAGE_REPO = lfoppiano/grobid
 GROBID_IMAGE_TAG = 0.5.3
