@@ -397,7 +397,7 @@ def get_app_config_value(
 
 
 DEFAULT_SCIENCEBEAM_IMAGE = (
-    'elifesciences/sciencebeam_unstable:bab47beda31aa1338bb79f3db8fcefbc47f75e0f'
+    'elifesciences/sciencebeam:0.0.8'
 )
 
 
@@ -411,7 +411,7 @@ def get_sciencebeam_image(config: dict = None):
 
 
 DEFAULT_SCIENCEBEAM_JUDGE_IMAGE = (
-    'elifesciences/sciencebeam-judge_unstable:0510e5eb2eca3e0626be5cb1ba44a68137a4aae1'
+    'elifesciences/sciencebeam-judge:0.0.8'
 )
 
 
@@ -425,7 +425,7 @@ def get_sciencebeam_judge_image(config: dict = None):
 
 
 DEFAULT_SCIENCEBEAM_GYM_IMAGE = (
-    'elifesciences/sciencebeam-gym_unstable:40ff412896fc3b5077803c759beaf92f3e8970cb'
+    'elifesciences/sciencebeam-gym:0.1.0'
 )
 
 
