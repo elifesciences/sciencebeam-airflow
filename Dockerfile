@@ -32,6 +32,9 @@ ENV PATH /usr/local/gcloud/google-cloud-sdk/bin:$PATH
 
 ENV PATH ${AIRFLOW_USER_HOME}/.local/bin:$PATH
 
+COPY --chown=airflow:airflow requirements.build.txt ./
+RUN pip install --user -r requirements.build.txt
+
 COPY --chown=airflow:airflow requirements.prereq.txt ./
 RUN pip install --user -r requirements.prereq.txt
 
