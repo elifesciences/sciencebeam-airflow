@@ -47,7 +47,6 @@ COPY --chown=airflow:airflow docker "${DOCKER_SCRIPTS_DIR}"
 ENV HELM_CHARTS_DIR=${AIRFLOW_HOME}/helm
 COPY --chown=airflow:airflow helm ${HELM_CHARTS_DIR}
 RUN cd ${HELM_CHARTS_DIR}/sciencebeam \
-  # && helm repo add stable https://kubernetes-charts.storage.googleapis.com \
   && helm dep update
 
 COPY --chown=airflow:airflow sciencebeam_airflow ./sciencebeam_airflow
