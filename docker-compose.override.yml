@@ -14,16 +14,16 @@ services:
 
   airflow-dev:
     volumes:
-      - ./dags:/usr/local/airflow/dags
-      - ./sciencebeam_airflow:/usr/local/airflow/sciencebeam_airflow
-      - ./tests:/usr/local/airflow/tests
+      - ./dags:/opt/airflow/dags
+      - ./sciencebeam_airflow:/opt/airflow/sciencebeam_airflow
+      - ./tests:/opt/airflow/tests
 
   airflow-webserver:
     volumes:
-      - ./dags:/usr/local/airflow/dags
-      - ./sciencebeam_airflow:/usr/local/airflow/sciencebeam_airflow
-      - config-gcloud:/usr/local/airflow/.config/gcloud
-      - config-kube:/usr/local/airflow/.kube
+      - ./dags:/opt/airflow/dags
+      - ./sciencebeam_airflow:/opt/airflow/sciencebeam_airflow
+      - config-gcloud:/home/airflow/.config/gcloud
+      - config-kube:/home/airflow/.kube
     depends_on:
       - init
     environment:
@@ -32,10 +32,10 @@ services:
 
   airflow-scheduler:
     volumes:
-      - ./dags:/usr/local/airflow/dags
-      - ./sciencebeam_airflow:/usr/local/airflow/sciencebeam_airflow
-      - config-gcloud:/usr/local/airflow/.config/gcloud
-      - config-kube:/usr/local/airflow/.kube
+      - ./dags:/opt/airflow/dags
+      - ./sciencebeam_airflow:/opt/airflow/sciencebeam_airflow
+      - config-gcloud:/home/airflow/.config/gcloud
+      - config-kube:/home/airflow/.kube
     depends_on:
       - init
     environment:
@@ -44,10 +44,10 @@ services:
 
   airflow-worker:
     volumes:
-      - ./dags:/usr/local/airflow/dags
-      - ./sciencebeam_airflow:/usr/local/airflow/sciencebeam_airflow
-      - config-gcloud:/usr/local/airflow/.config/gcloud
-      - config-kube:/usr/local/airflow/.kube
+      - ./dags:/opt/airflow/dags
+      - ./sciencebeam_airflow:/opt/airflow/sciencebeam_airflow
+      - config-gcloud:/home/airflow/.config/gcloud
+      - config-kube:/home/airflow/.kube
     depends_on:
       - init
     environment:
