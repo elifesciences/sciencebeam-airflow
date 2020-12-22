@@ -169,10 +169,14 @@ build: helm-charts-update
 	$(DOCKER_COMPOSE) build airflow-image
 
 
+build-init:
+	$(DOCKER_COMPOSE) build init
+
+
 build-dev: helm-charts-update
 	# only dev compose file has "init" service defined
 	@if [ "$(DOCKER_COMPOSE)" = "$(DOCKER_COMPOSE_DEV)" ]; then \
-		$(DOCKER_COMPOSE) build init; \
+		$(MAKE) build-init; \
 	fi
 	$(DOCKER_COMPOSE) build airflow-dev-base-image airflow-dev
 

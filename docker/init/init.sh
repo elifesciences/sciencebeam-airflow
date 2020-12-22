@@ -3,7 +3,7 @@
 set -e
 
 # airflow user id
-USER_ID=1000
+USER_ID=50000
 echo 'changing ownership to $USER_ID, and...'
 
 echo 'copying gcloud credentials...'
