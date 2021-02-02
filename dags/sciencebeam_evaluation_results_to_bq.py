@@ -122,7 +122,6 @@ def evaluation_results_to_jsonl(dag_run: DagRun, **_):
 def create_evaluation_results_to_jsonl_op(dag, task_id='evaluation_results_to_jsonl'):
     return PythonOperator(
         task_id=task_id,
-        provide_context=True,
         python_callable=evaluation_results_to_jsonl,
         dag=dag
     )

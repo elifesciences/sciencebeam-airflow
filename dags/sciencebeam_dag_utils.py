@@ -8,10 +8,10 @@ from pprint import pformat
 from urllib.parse import urlparse
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Callable, Iterable, List
+from typing import Callable, Iterable, List, T
 
 import airflow
-from airflow.operators.dagrun_operator import TriggerDagRunOperator, DagRunOrder
+from airflow.operators.dagrun_operator import TriggerDagRunOperator
 from airflow.operators.python_operator import PythonOperator
 from airflow.contrib.sensors.gcs_sensor import GoogleCloudStoragePrefixSensor
 from airflow.contrib.operators.gcs_list_operator import GoogleCloudStorageListOperator
@@ -22,6 +22,9 @@ from airflow.api.common.experimental.trigger_dag import trigger_dag
 
 
 from sciencebeam_dag_conf import ScienceBeamDagConf
+
+
+DagRunOrder = T
 
 
 LOGGER = logging.getLogger(__name__)
@@ -65,7 +68,6 @@ def create_validate_config_operation(
         task_id='validate_config'):
     return PythonOperator(
         task_id=task_id,
-        provide_context=True,
         python_callable=partial(
             validate_config, required_props=required_props, is_config_valid=is_config_valid
         ),
@@ -343,7 +345,6 @@ def create_trigger_next_task_dag_operator(dag: DAG, task_id: str = 'trigger_next
     return PythonOperator(
         dag=dag,
         task_id=task_id,
-        provide_context=True,
         python_callable=_trigger_next_task_fn
     )
 

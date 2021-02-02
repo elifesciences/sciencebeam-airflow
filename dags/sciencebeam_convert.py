@@ -1,9 +1,9 @@
 import logging
 import os
-from typing import Dict, List
+from typing import Dict, List, T
 
 from airflow.operators.bash_operator import BashOperator
-from airflow.operators.dagrun_operator import DagRunOrder
+# from airflow.operators.dagrun_operator import DagRunOrder
 from airflow.models import DAG, DagRun
 
 from sciencebeam_airflow.utils.container import escape_helm_set_value
@@ -24,6 +24,8 @@ from container_operators import (
     HelmDeleteOperator
 )
 
+
+DagRunOrder = T
 
 LOGGER = logging.getLogger(__name__)
 

@@ -52,7 +52,6 @@ def add_model_config(**kwargs):
 def add_model_config_operator(dag, task_id='add_model_config'):
     return PythonOperator(
         task_id=task_id,
-        provide_context=True,
         python_callable=add_model_config,
         dag=dag
     )

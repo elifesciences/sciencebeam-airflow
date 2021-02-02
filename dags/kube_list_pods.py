@@ -10,7 +10,7 @@ DEFAULT_ARGS = {
 }
 
 
-def kube_list_pods(**_):
+def kube_list_pods(*_, **__):
     kubernetes.config.load_kube_config(persist_config=False)
 
     client = kubernetes.client.CoreV1Api()
@@ -28,7 +28,6 @@ def create_dag():
 
     PythonOperator(
         task_id='kube_list_pods',
-        provide_context=False,
         python_callable=kube_list_pods,
         dag=dag)
 

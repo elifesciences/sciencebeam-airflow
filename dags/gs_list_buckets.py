@@ -10,7 +10,7 @@ DEFAULT_ARGS = {
 }
 
 
-def gs_list_buckets(**_):
+def gs_list_buckets(*_, **__):
     client = storage.Client()
     items = list(client.list_buckets())
     print('buckets:', items)
@@ -25,7 +25,6 @@ def create_dag():
 
     PythonOperator(
         task_id='gs_list_buckets',
-        provide_context=False,
         python_callable=gs_list_buckets,
         dag=dag)
 
