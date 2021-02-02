@@ -104,7 +104,7 @@ services:
       - airflow-image
       - airflow-scheduler
     environment: *airflow-env
-    command: worker
+    command: celery worker
 
 
 volumes:
