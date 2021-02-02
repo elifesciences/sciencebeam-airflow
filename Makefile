@@ -197,7 +197,7 @@ deploy-sciencebeam:
 
 
 airflow-initdb:
-	$(DOCKER_COMPOSE) run --rm  airflow-webserver initdb
+	$(DOCKER_COMPOSE) run --rm  airflow-webserver db init
 
 
 start: helm-charts-update
