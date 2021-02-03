@@ -55,7 +55,7 @@ UPLOAD_TO_BQ_TEMPLATE = (
 
 GSUTIL_RM_TEMPLATE = (
     '''
-    gsutil rm "{{ ti.xcom_pull() }}"
+    gsutil rm "{{ ti.xcom_pull(task_ids='evaluation_results_to_jsonl') }}"
     '''
 )
 
