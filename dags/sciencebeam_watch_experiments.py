@@ -7,7 +7,7 @@ from typing import List
 
 from airflow.models import DAG
 
-from airflow.operators.python_operator import PythonOperator
+from airflow.operators.python import PythonOperator
 
 from sciencebeam_dag_ids import ScienceBeamDagIds
 

@@ -2,7 +2,7 @@ import json
 import os
 import logging
 
-from airflow.operators.python_operator import PythonOperator
+from airflow.operators.python import PythonOperator
 from airflow.models import DAG, DagRun
 
 from sciencebeam_dag_ids import ScienceBeamDagIds

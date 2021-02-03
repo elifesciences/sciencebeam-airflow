@@ -12,7 +12,7 @@ from typing import Callable, Iterable, List, T
 
 import airflow
 from airflow.operators.dagrun_operator import TriggerDagRunOperator
-from airflow.operators.python_operator import PythonOperator
+from airflow.operators.python import PythonOperator
 from airflow.providers.google.cloud.sensors.gcs import GCSObjectsWtihPrefixExistenceSensor
 from airflow.providers.google.cloud.operators.gcs import GCSListObjectsOperator
 from airflow.providers.google.cloud.hooks.gcs import GCSHook
