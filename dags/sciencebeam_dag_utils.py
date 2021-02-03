@@ -8,7 +8,7 @@ from pprint import pformat
 from urllib.parse import urlparse
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Callable, Iterable, List, T
+from typing import Callable, Iterable, List
 
 import airflow
 from airflow.operators.trigger_dagrun import TriggerDagRunOperator
@@ -22,9 +22,6 @@ from airflow.api.common.experimental.trigger_dag import trigger_dag
 
 
 from sciencebeam_dag_conf import ScienceBeamDagConf
-
-
-DagRunOrder = T
 
 
 LOGGER = logging.getLogger(__name__)
