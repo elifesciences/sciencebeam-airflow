@@ -2,7 +2,7 @@ import logging
 import os
 from typing import Dict, List, T
 
-from airflow.operators.bash_operator import BashOperator
+from airflow.operators.bash import BashOperator
 # from airflow.operators.dagrun_operator import DagRunOrder
 from airflow.models import DAG, DagRun
 

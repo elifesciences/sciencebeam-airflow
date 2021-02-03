@@ -7,7 +7,7 @@ from typing import List
 import yaml
 
 from airflow.models import DAG
-from airflow.operators.bash_operator import BashOperator
+from airflow.operators.bash import BashOperator
 
 from sciencebeam_airflow.utils.container import (
     get_helm_delete_command

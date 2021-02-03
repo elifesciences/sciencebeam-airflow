@@ -6,7 +6,7 @@ from pathlib import Path
 from csv import DictReader
 from typing import Iterable
 
-from airflow.operators.bash_operator import BashOperator
+from airflow.operators.bash import BashOperator
 from airflow.operators.python_operator import PythonOperator
 from airflow.models import DAG, DagRun
 

@@ -3,7 +3,7 @@ import shlex
 import logging
 from typing import Dict, Type
 
-from airflow.operators.bash_operator import BashOperator
+from airflow.operators.bash import BashOperator
 
 
 LOGGER = logging.getLogger(__name__)

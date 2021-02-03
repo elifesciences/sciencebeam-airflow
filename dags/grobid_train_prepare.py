@@ -1,4 +1,4 @@
-from airflow.operators.bash_operator import BashOperator
+from airflow.operators.bash import BashOperator
 from airflow.models import DAG
 
 from sciencebeam_dag_ids import ScienceBeamDagIds
