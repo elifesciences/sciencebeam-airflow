@@ -32,7 +32,7 @@ GET_DATA_TEMPLATE = (
         --document-output-filename-pattern "{name}.pdf.gz" \
         --target-output-path "{{ dag_run.conf.train.grobid.dataset }}/xml" \
         --target-output-filename-pattern "{document.name}.xml.gz" \
-        {% if dag_run.conf.train.limit %} \
+        {% if dag_run.conf.train.limit | default(false) %} \
             --limit "{{ dag_run.conf.train.limit }}" \
         {% endif %} \
         --debug \

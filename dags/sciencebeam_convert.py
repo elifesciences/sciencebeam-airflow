@@ -78,7 +78,7 @@ SCIENCEBEAM_CONVERT_TEMPLATE = (
         --output-suffix "{{ get_output_conf(dag_run.conf).output_suffix }}" \
         --pipeline=api \
         --api-url=http://{{ dag_run.conf.sciencebeam_release_name }}-sb:8075/api/convert \
-        {% if dag_run.conf.resume %} \
+        {% if dag_run.conf.resume | default(false) %} \
             --resume \
         {% endif %} \
         --limit "{{ get_limit(dag_run.conf) }}" \
