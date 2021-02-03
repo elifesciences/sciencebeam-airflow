@@ -13,9 +13,9 @@ from typing import Callable, Iterable, List, T
 import airflow
 from airflow.operators.dagrun_operator import TriggerDagRunOperator
 from airflow.operators.python_operator import PythonOperator
-from airflow.contrib.sensors.gcs_sensor import GoogleCloudStoragePrefixSensor
-from airflow.contrib.operators.gcs_list_operator import GoogleCloudStorageListOperator
-from airflow.contrib.hooks.gcs_hook import GoogleCloudStorageHook
+from airflow.providers.google.cloud.sensors.gcs import GCSObjectsWtihPrefixExistenceSensor
+from airflow.providers.google.cloud.operators.gcs import GCSListObjectsOperator
+from airflow.providers.google.cloud.hooks.gcs import GCSHook
 from airflow.models import DAG
 from airflow.utils import timezone
 from airflow.api.common.experimental.trigger_dag import trigger_dag
@@ -90,7 +90,7 @@ def parse_gs_url(url):
 
 def create_watch_sensor(dag, task_id, url_prefix, **kwargs):
     parsed_url = parse_gs_url(url_prefix)
-    return GoogleCloudStoragePrefixSensor(
+    return GCSObjectsWtihPrefixExistenceSensor(
         task_id=task_id,
         bucket=parsed_url['bucket'],
         prefix=parsed_url['object'],
@@ -106,7 +106,7 @@ def _to_absolute_urls(bucket: str, path_iterable: Iterable[str]):
     ]
 
 
-class AbsoluteUrlGoogleCloudStorageListOperator(GoogleCloudStorageListOperator):
+class AbsoluteUrlGoogleCloudStorageListOperator(GCSListObjectsOperator):
     def execute(self, context):
         return _to_absolute_urls(self.bucket, super().execute(context))
 
@@ -122,7 +122,7 @@ def create_list_operator(dag, task_id, url_prefix):
 
 
 def get_gs_hook(google_cloud_storage_conn_id='google_cloud_default', delegate_to=None):
-    return GoogleCloudStorageHook(
+    return GCSHook(
         google_cloud_storage_conn_id=google_cloud_storage_conn_id,
         delegate_to=delegate_to
     )
@@ -133,7 +133,7 @@ def list_files(url_prefix):
     LOGGER.info('listing files in %s (%s)', url_prefix, parsed_url)
     return _to_absolute_urls(
         parsed_url['bucket'],
-        get_gs_hook().list(bucket=parsed_url['bucket'], prefix=parsed_url['object'])
+        get_gs_hook().list(bucket_name=parsed_url['bucket'], prefix=parsed_url['object'])
     )
 
 
@@ -162,8 +162,8 @@ def create_watch_and_list_operator(dag, task_id_prefix, url_prefix, **kwargs):
 def file_exists(url, **kwargs):
     parsed_url = parse_gs_url(url)
     return get_gs_hook(**kwargs).exists(
-        bucket=parsed_url['bucket'],
-        object=parsed_url['object']
+        bucket_name=parsed_url['bucket'],
+        object_name=parsed_url['object']
     )
 
 
@@ -171,8 +171,8 @@ def download_file(url, filename, **kwargs):
     LOGGER.info('downloading: %s', url)
     parsed_url = parse_gs_url(url)
     return get_gs_hook(**kwargs).download(
-        bucket=parsed_url['bucket'],
-        object=parsed_url['object'],
+        bucket_name=parsed_url['bucket'],
+        object_name=parsed_url['object'],
         filename=filename
     )
 
@@ -181,8 +181,8 @@ def upload_file(filename, url, **kwargs):
     LOGGER.info('uploading to: %s', url)
     parsed_url = parse_gs_url(url)
     return get_gs_hook(**kwargs).upload(
-        bucket=parsed_url['bucket'],
-        object=parsed_url['object'],
+        bucket_name=parsed_url['bucket'],
+        object_name=parsed_url['object'],
         filename=filename
     )
 
@@ -211,7 +211,7 @@ def _copy_or_move_file(
         google_cloud_storage_conn_id='google_cloud_default', delegate_to=None):
     parsed_source_url = parse_gs_url(source_url)
     parsed_target_url = parse_gs_url(target_url)
-    hook = GoogleCloudStorageHook(
+    hook = GCSHook(
         google_cloud_storage_conn_id=google_cloud_storage_conn_id,
         delegate_to=delegate_to
     )
