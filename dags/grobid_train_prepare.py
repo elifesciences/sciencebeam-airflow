@@ -59,7 +59,7 @@ AUTO_ANNOTATE_HEADER_TEMPLATE = (
         --output-path "{{ dag_run.conf.train.grobid.dataset }}/header/corpus/tei-auto" \
         --xml-path "{{ dag_run.conf.train.grobid.dataset }}/xml" \
         --xml-filename-regex '/(.*).header.tei.xml/\\1.xml/' \
-        --fields "{{ dag_run.conf.train.fields or DEFAULT_GROBID_TRAIN_FIELDS }}" \
+        --fields "{{ dag_run.conf.train.get('fields') or DEFAULT_GROBID_TRAIN_FIELDS }}" \
         --no-preserve-tags
     '''
 )
