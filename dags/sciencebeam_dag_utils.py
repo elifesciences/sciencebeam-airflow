@@ -276,43 +276,30 @@ def create_retrigger_operator(dag, task_id=None):
     )
 
 
-def _conditionally_trigger_dag(
-        context: dict, dag_run_obj: DagRunOrder,
+def trigger_using_transform_conf(
         trigger_dag_id: str,
-        python_callable: Callable[[dict, DagRunOrder], DagRunOrder],
-        transform_conf: Callable[[dict], dict] = None):
-    conf: dict = context['dag_run'].conf
-    # the payload is used as the conf for the next dag run, we can just pass it through
-    dag_run_obj.payload = conf
-    if transform_conf:
-        dag_run_obj.payload = transform_conf(conf)
-    dag_run_obj.run_id = _get_full_run_id(
-        conf=dag_run_obj.payload,
-        default_run_id=dag_run_obj.run_id
-    )
-    if python_callable:
-        dag_run_obj = python_callable(context, dag_run_obj)
-    if dag_run_obj:
-        LOGGER.info('triggering %s with: %s', trigger_dag_id, conf)
-    return dag_run_obj
+        transform_conf: Callable[[dict], dict] = None,
+        **kwargs):
+    dag_run = kwargs['dag_run']
+    conf = transform_conf(dag_run.conf)
+    LOGGER.info('triggering %s with: %s', trigger_dag_id, conf)
+    simple_trigger_dag(dag_id=trigger_dag_id, conf=conf)
 
 
 def create_trigger_operator(
         dag: DAG, trigger_dag_id: str, task_id: str = None,
-        python_callable: Callable[[dict, DagRunOrder], DagRunOrder] = None,
         transform_conf: Callable[[dict], dict] = None):
+    LOGGER.info('trigger_dag_id: %s', trigger_dag_id)
     if not task_id:
         task_id = f'trigger_{trigger_dag_id}'
-    return TriggerDagRunOperator(
+    return PythonOperator(
+        dag=dag,
         task_id=task_id,
-        trigger_dag_id=trigger_dag_id,
         python_callable=partial(
-            _conditionally_trigger_dag,
+            trigger_using_transform_conf,
             trigger_dag_id=trigger_dag_id,
-            python_callable=python_callable,
             transform_conf=transform_conf
-        ),
-        dag=dag
+        )
     )
 
 
