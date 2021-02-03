@@ -330,21 +330,21 @@ trigger-helm-version:
 
 trigger-sciencebeam-convert: .run_id .sciencebeam-convert-eval-conf
 	$(DOCKER_COMPOSE) exec airflow-webserver /entrypoint dags trigger \
-		--run_id "$(RUN_ID)" \
+		--run-id "$(RUN_ID)" \
 		--conf "$$SCIENCEBEAM_CONVERT_EVAL_CONF" \
 		sciencebeam_convert
 
 
 trigger-sciencebeam-evaluate: .run_id .sciencebeam-convert-eval-conf
 	$(DOCKER_COMPOSE) exec airflow-webserver /entrypoint dags trigger \
-		--run_id "$(RUN_ID)" \
+		--run-id "$(RUN_ID)" \
 		--conf "$$SCIENCEBEAM_CONVERT_EVAL_CONF" \
 		sciencebeam_evaluate
 
 
 trigger-sciencebeam-evaluation-results-to-bq: .run_id .sciencebeam-convert-eval-conf
 	docker-compose exec airflow-webserver /entrypoint dags trigger \
-		--run_id "$(RUN_ID)" \
+		--run-id "$(RUN_ID)" \
 		--conf "$$SCIENCEBEAM_CONVERT_EVAL_CONF" \
 		sciencebeam_evaluation_results_to_bq
 
@@ -392,35 +392,35 @@ trigger-sciencebeam-evaluation-results-to-bq: .run_id .sciencebeam-convert-eval-
 
 trigger-grobid-train-prepare: .run_id .grobid-train-conf
 	docker-compose exec airflow-webserver /entrypoint dags trigger \
-		--run_id "$(RUN_ID)" \
+		--run-id "$(RUN_ID)" \
 		--conf "$$SCIENCEBEAM_TRAIN_CONF" \
 		grobid_train_prepare
 
 
 trigger-grobid-train-evaluate: .run_id .grobid-train-conf
 	docker-compose exec airflow-webserver /entrypoint dags trigger \
-		--run_id "$(RUN_ID)" \
+		--run-id "$(RUN_ID)" \
 		--conf "$$SCIENCEBEAM_TRAIN_CONF" \
 		grobid_train_evaluate
 
 
 trigger-grobid-train-model: .run_id .grobid-train-conf
 	docker-compose exec airflow-webserver /entrypoint dags trigger \
-		--run_id "$(RUN_ID)" \
+		--run-id "$(RUN_ID)" \
 		--conf "$$SCIENCEBEAM_TRAIN_CONF" \
 		grobid_train_model
 
 
 trigger-grobid-build-image: .run_id .grobid-train-conf
 	docker-compose exec airflow-webserver /entrypoint dags trigger \
-		--run_id "$(RUN_ID)" \
+		--run-id "$(RUN_ID)" \
 		--conf "$$SCIENCEBEAM_TRAIN_CONF" \
 		grobid_build_image
 
 
 trigger-grobid-train-evaluate-source-dataset: .run_id .grobid-train-conf
 	docker-compose exec airflow-webserver /entrypoint dags trigger \
-		--run_id "$(RUN_ID)" \
+		--run-id "$(RUN_ID)" \
 		--conf "$$SCIENCEBEAM_TRAIN_CONF" \
 		grobid_train_evaluate_source_dataset
 
@@ -492,28 +492,28 @@ trigger-grobid-train-evaluate-source-dataset: .run_id .grobid-train-conf
 
 trigger-sciencebeam-autocut-convert-training-data: .run_id .sciencebeam-autocut-train-conf
 	docker-compose exec airflow-webserver /entrypoint dags trigger \
-		--run_id "$(RUN_ID)" \
+		--run-id "$(RUN_ID)" \
 		--conf "$$SCIENCEBEAM_AUTOCUT_TRAIN_CONF" \
 		sciencebeam_autocut_convert_training_data
 
 
 trigger-sciencebeam-autocut-train-model: .run_id .sciencebeam-autocut-train-conf
 	docker-compose exec airflow-webserver /entrypoint dags trigger \
-		--run_id "$(RUN_ID)" \
+		--run-id "$(RUN_ID)" \
 		--conf "$$SCIENCEBEAM_AUTOCUT_TRAIN_CONF" \
 		sciencebeam_autocut_train_model
 
 
 trigger-sciencebeam-autocut-build-image: .run_id .sciencebeam-autocut-train-conf
 	docker-compose exec airflow-webserver /entrypoint dags trigger \
-		--run_id "$(RUN_ID)" \
+		--run-id "$(RUN_ID)" \
 		--conf "$$SCIENCEBEAM_AUTOCUT_TRAIN_CONF" \
 		sciencebeam_autocut_build_image
 
 
 trigger-sciencebeam-autocut-convert-and-evaluate: .run_id .sciencebeam-autocut-train-conf
 	docker-compose exec airflow-webserver /entrypoint dags trigger \
-		--run_id "$(RUN_ID)" \
+		--run-id "$(RUN_ID)" \
 		--conf "$$SCIENCEBEAM_AUTOCUT_TRAIN_CONF" \
 		sciencebeam_convert
 
