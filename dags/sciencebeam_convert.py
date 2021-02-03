@@ -1,9 +1,8 @@
 import logging
 import os
-from typing import Dict, List, T
+from typing import Dict, List
 
 from airflow.operators.bash import BashOperator
-# from airflow.operators.dagrun_operator import DagRunOrder
 from airflow.models import DAG, DagRun
 
 from sciencebeam_airflow.utils.container import escape_helm_set_value
@@ -24,8 +23,6 @@ from container_operators import (
     HelmDeleteOperator
 )
 
-
-DagRunOrder = T
 
 LOGGER = logging.getLogger(__name__)
 
@@ -273,14 +270,6 @@ def create_get_output_file_list_op(
         requests='cpu=100m,memory=256Mi',
         command=SCIENCEBEAM_GET_OUTPUT_FILE_LIST_TEMPLATE,
     )
-
-
-def conditionally_trigger_evaluation(
-        context: dict, dag_run_obj: DagRunOrder):  # pylint: disable=unused-argument
-    if not dag_run_obj.payload.get('eval_output_path'):
-        print('no eval_output_path value, skipping evaluation')
-        return None
-    return dag_run_obj
 
 
 def create_dag(
