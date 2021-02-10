@@ -1,4 +1,4 @@
-from airflow.operators.bash_operator import BashOperator
+from airflow.operators.bash import BashOperator
 from airflow.models import DAG
 
 from sciencebeam_dag_ids import ScienceBeamDagIds
@@ -32,7 +32,7 @@ GET_DATA_TEMPLATE = (
         --document-output-filename-pattern "{name}.pdf.gz" \
         --target-output-path "{{ dag_run.conf.train.grobid.dataset }}/xml" \
         --target-output-filename-pattern "{document.name}.xml.gz" \
-        {% if dag_run.conf.train.limit %} \
+        {% if dag_run.conf.train.limit | default(false) %} \
             --limit "{{ dag_run.conf.train.limit }}" \
         {% endif %} \
         --debug \
@@ -59,7 +59,7 @@ AUTO_ANNOTATE_HEADER_TEMPLATE = (
         --output-path "{{ dag_run.conf.train.grobid.dataset }}/header/corpus/tei-auto" \
         --xml-path "{{ dag_run.conf.train.grobid.dataset }}/xml" \
         --xml-filename-regex '/(.*).header.tei.xml/\\1.xml/' \
-        --fields "{{ dag_run.conf.train.fields or DEFAULT_GROBID_TRAIN_FIELDS }}" \
+        --fields "{{ dag_run.conf.train.get('fields') or DEFAULT_GROBID_TRAIN_FIELDS }}" \
         --no-preserve-tags
     '''
 )

@@ -2,8 +2,7 @@ import logging
 import os
 from typing import Dict, List
 
-from airflow.operators.bash_operator import BashOperator
-from airflow.operators.dagrun_operator import DagRunOrder
+from airflow.operators.bash import BashOperator
 from airflow.models import DAG, DagRun
 
 from sciencebeam_airflow.utils.container import escape_helm_set_value
@@ -76,7 +75,7 @@ SCIENCEBEAM_CONVERT_TEMPLATE = (
         --output-suffix "{{ get_output_conf(dag_run.conf).output_suffix }}" \
         --pipeline=api \
         --api-url=http://{{ dag_run.conf.sciencebeam_release_name }}-sb:8075/api/convert \
-        {% if dag_run.conf.resume %} \
+        {% if dag_run.conf.resume | default(false) %} \
             --resume \
         {% endif %} \
         --limit "{{ get_limit(dag_run.conf) }}" \
@@ -271,14 +270,6 @@ def create_get_output_file_list_op(
         requests='cpu=100m,memory=256Mi',
         command=SCIENCEBEAM_GET_OUTPUT_FILE_LIST_TEMPLATE,
     )
-
-
-def conditionally_trigger_evaluation(
-        context: dict, dag_run_obj: DagRunOrder):  # pylint: disable=unused-argument
-    if not dag_run_obj.payload.get('eval_output_path'):
-        print('no eval_output_path value, skipping evaluation')
-        return None
-    return dag_run_obj
 
 
 def create_dag(

@@ -7,7 +7,7 @@ from typing import List
 
 from airflow.models import DAG
 
-from airflow.operators.python_operator import PythonOperator
+from airflow.operators.python import PythonOperator
 
 from sciencebeam_dag_ids import ScienceBeamDagIds
 
@@ -77,7 +77,6 @@ def log_files(**kwargs):
 def create_log_files_op(dag, task_id='log_files'):
     return PythonOperator(
         task_id=task_id,
-        provide_context=True,
         python_callable=log_files,
         dag=dag
     )
@@ -245,7 +244,6 @@ def create_for_each_file_in_file_list_trigger_dag_op(
         dag, task_id='for_each_file_in_file_list_trigger_dag_and_move_file'):
     return PythonOperator(
         task_id=task_id,
-        provide_context=True,
         python_callable=for_each_file_in_xcom_file_list_trigger_dag_and_move_file,
         dag=dag
     )

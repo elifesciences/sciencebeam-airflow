@@ -8,6 +8,7 @@ MODEL_1 = {
 
 DEFAULT_CONF = {
     'namespace': NAMESPACE_1,
+    'sciencebeam_release_name': 'sciencebeam_release_name_1',
     'model_name': MODEL_NAME_1,
     'model': MODEL_1,
     'train': {

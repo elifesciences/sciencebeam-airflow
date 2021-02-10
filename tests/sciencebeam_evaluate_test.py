@@ -22,7 +22,11 @@ FIELD_1 = 'field1'
 DEFAULT_CONF = {
     **_DEFAULT_CONF,
     'source_data_path': '/path/to/source',
-    'source_file_list': 'file-list.lst'
+    'source_file_list': 'file-list.lst',
+    'output_data_path': '/path/to/output',
+    'output_file_list': 'output-file-list.lst',
+    'eval_output_path': '/path/to/eval-output',
+    'limit': '123'
 }
 
 

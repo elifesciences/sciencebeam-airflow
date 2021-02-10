@@ -6,8 +6,8 @@ from pathlib import Path
 from csv import DictReader
 from typing import Iterable
 
-from airflow.operators.bash_operator import BashOperator
-from airflow.operators.python_operator import PythonOperator
+from airflow.operators.bash import BashOperator
+from airflow.operators.python import PythonOperator
 from airflow.models import DAG, DagRun
 
 from sciencebeam_dag_ids import ScienceBeamDagIds
@@ -55,7 +55,7 @@ UPLOAD_TO_BQ_TEMPLATE = (
 
 GSUTIL_RM_TEMPLATE = (
     '''
-    gsutil rm "{{ ti.xcom_pull() }}"
+    gsutil rm "{{ ti.xcom_pull(task_ids='evaluation_results_to_jsonl') }}"
     '''
 )
 
@@ -122,7 +122,6 @@ def evaluation_results_to_jsonl(dag_run: DagRun, **_):
 def create_evaluation_results_to_jsonl_op(dag, task_id='evaluation_results_to_jsonl'):
     return PythonOperator(
         task_id=task_id,
-        provide_context=True,
         python_callable=evaluation_results_to_jsonl,
         dag=dag
     )

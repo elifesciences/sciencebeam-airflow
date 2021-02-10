@@ -1,7 +1,7 @@
 import logging
 from urllib.parse import urlparse
 
-from airflow.contrib.hooks.gcs_hook import GoogleCloudStorageHook
+from airflow.providers.google.cloud.hooks.gcs import GCSHook
 from airflow.models import Connection
 
 
@@ -24,7 +24,7 @@ def parse_gs_url(url):
     }
 
 
-class StandaloneGoogleCloudStorageHook(GoogleCloudStorageHook):  # pylint: disable=abstract-method
+class StandaloneGoogleCloudStorageHook(GCSHook):  # pylint: disable=abstract-method
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

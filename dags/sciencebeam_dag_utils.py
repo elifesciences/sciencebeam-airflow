@@ -11,11 +11,11 @@ from tempfile import TemporaryDirectory
 from typing import Callable, Iterable, List
 
 import airflow
-from airflow.operators.dagrun_operator import TriggerDagRunOperator, DagRunOrder
-from airflow.operators.python_operator import PythonOperator
-from airflow.contrib.sensors.gcs_sensor import GoogleCloudStoragePrefixSensor
-from airflow.contrib.operators.gcs_list_operator import GoogleCloudStorageListOperator
-from airflow.contrib.hooks.gcs_hook import GoogleCloudStorageHook
+from airflow.operators.trigger_dagrun import TriggerDagRunOperator
+from airflow.operators.python import PythonOperator
+from airflow.providers.google.cloud.sensors.gcs import GCSObjectsWtihPrefixExistenceSensor
+from airflow.providers.google.cloud.operators.gcs import GCSListObjectsOperator
+from airflow.providers.google.cloud.hooks.gcs import GCSHook
 from airflow.models import DAG
 from airflow.utils import timezone
 from airflow.api.common.experimental.trigger_dag import trigger_dag
@@ -65,7 +65,6 @@ def create_validate_config_operation(
         task_id='validate_config'):
     return PythonOperator(
         task_id=task_id,
-        provide_context=True,
         python_callable=partial(
             validate_config, required_props=required_props, is_config_valid=is_config_valid
         ),
@@ -88,7 +87,7 @@ def parse_gs_url(url):
 
 def create_watch_sensor(dag, task_id, url_prefix, **kwargs):
     parsed_url = parse_gs_url(url_prefix)
-    return GoogleCloudStoragePrefixSensor(
+    return GCSObjectsWtihPrefixExistenceSensor(
         task_id=task_id,
         bucket=parsed_url['bucket'],
         prefix=parsed_url['object'],
@@ -104,7 +103,7 @@ def _to_absolute_urls(bucket: str, path_iterable: Iterable[str]):
     ]
 
 
-class AbsoluteUrlGoogleCloudStorageListOperator(GoogleCloudStorageListOperator):
+class AbsoluteUrlGoogleCloudStorageListOperator(GCSListObjectsOperator):
     def execute(self, context):
         return _to_absolute_urls(self.bucket, super().execute(context))
 
@@ -120,7 +119,7 @@ def create_list_operator(dag, task_id, url_prefix):
 
 
 def get_gs_hook(google_cloud_storage_conn_id='google_cloud_default', delegate_to=None):
-    return GoogleCloudStorageHook(
+    return GCSHook(
         google_cloud_storage_conn_id=google_cloud_storage_conn_id,
         delegate_to=delegate_to
     )
@@ -131,7 +130,7 @@ def list_files(url_prefix):
     LOGGER.info('listing files in %s (%s)', url_prefix, parsed_url)
     return _to_absolute_urls(
         parsed_url['bucket'],
-        get_gs_hook().list(bucket=parsed_url['bucket'], prefix=parsed_url['object'])
+        get_gs_hook().list(bucket_name=parsed_url['bucket'], prefix=parsed_url['object'])
     )
 
 
@@ -160,8 +159,8 @@ def create_watch_and_list_operator(dag, task_id_prefix, url_prefix, **kwargs):
 def file_exists(url, **kwargs):
     parsed_url = parse_gs_url(url)
     return get_gs_hook(**kwargs).exists(
-        bucket=parsed_url['bucket'],
-        object=parsed_url['object']
+        bucket_name=parsed_url['bucket'],
+        object_name=parsed_url['object']
     )
 
 
@@ -169,8 +168,8 @@ def download_file(url, filename, **kwargs):
     LOGGER.info('downloading: %s', url)
     parsed_url = parse_gs_url(url)
     return get_gs_hook(**kwargs).download(
-        bucket=parsed_url['bucket'],
-        object=parsed_url['object'],
+        bucket_name=parsed_url['bucket'],
+        object_name=parsed_url['object'],
         filename=filename
     )
 
@@ -179,8 +178,8 @@ def upload_file(filename, url, **kwargs):
     LOGGER.info('uploading to: %s', url)
     parsed_url = parse_gs_url(url)
     return get_gs_hook(**kwargs).upload(
-        bucket=parsed_url['bucket'],
-        object=parsed_url['object'],
+        bucket_name=parsed_url['bucket'],
+        object_name=parsed_url['object'],
         filename=filename
     )
 
@@ -209,7 +208,7 @@ def _copy_or_move_file(
         google_cloud_storage_conn_id='google_cloud_default', delegate_to=None):
     parsed_source_url = parse_gs_url(source_url)
     parsed_target_url = parse_gs_url(target_url)
-    hook = GoogleCloudStorageHook(
+    hook = GCSHook(
         google_cloud_storage_conn_id=google_cloud_storage_conn_id,
         delegate_to=delegate_to
     )
@@ -274,43 +273,30 @@ def create_retrigger_operator(dag, task_id=None):
     )
 
 
-def _conditionally_trigger_dag(
-        context: dict, dag_run_obj: DagRunOrder,
+def trigger_using_transform_conf(
         trigger_dag_id: str,
-        python_callable: Callable[[dict, DagRunOrder], DagRunOrder],
-        transform_conf: Callable[[dict], dict] = None):
-    conf: dict = context['dag_run'].conf
-    # the payload is used as the conf for the next dag run, we can just pass it through
-    dag_run_obj.payload = conf
-    if transform_conf:
-        dag_run_obj.payload = transform_conf(conf)
-    dag_run_obj.run_id = _get_full_run_id(
-        conf=dag_run_obj.payload,
-        default_run_id=dag_run_obj.run_id
-    )
-    if python_callable:
-        dag_run_obj = python_callable(context, dag_run_obj)
-    if dag_run_obj:
-        LOGGER.info('triggering %s with: %s', trigger_dag_id, conf)
-    return dag_run_obj
+        transform_conf: Callable[[dict], dict] = None,
+        **kwargs):
+    dag_run = kwargs['dag_run']
+    conf = transform_conf(dag_run.conf)
+    LOGGER.info('triggering %s with: %s', trigger_dag_id, conf)
+    simple_trigger_dag(dag_id=trigger_dag_id, conf=conf)
 
 
 def create_trigger_operator(
         dag: DAG, trigger_dag_id: str, task_id: str = None,
-        python_callable: Callable[[dict, DagRunOrder], DagRunOrder] = None,
         transform_conf: Callable[[dict], dict] = None):
+    LOGGER.info('trigger_dag_id: %s', trigger_dag_id)
     if not task_id:
         task_id = f'trigger_{trigger_dag_id}'
-    return TriggerDagRunOperator(
+    return PythonOperator(
+        dag=dag,
         task_id=task_id,
-        trigger_dag_id=trigger_dag_id,
         python_callable=partial(
-            _conditionally_trigger_dag,
+            trigger_using_transform_conf,
             trigger_dag_id=trigger_dag_id,
-            python_callable=python_callable,
             transform_conf=transform_conf
-        ),
-        dag=dag
+        )
     )
 
 
@@ -343,7 +329,6 @@ def create_trigger_next_task_dag_operator(dag: DAG, task_id: str = 'trigger_next
     return PythonOperator(
         dag=dag,
         task_id=task_id,
-        provide_context=True,
         python_callable=_trigger_next_task_fn
     )
 

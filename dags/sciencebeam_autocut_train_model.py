@@ -43,7 +43,7 @@ TRAIN_AUTOCUT_MODEL_TEMPLATE = (
             "front/article-meta/title-group/article-title" \
         '--namespaces={"tei": "http://www.tei-c.org/ns/1.0"}' \
         --output-path="{{ dag_run.conf.train.autocut.model }}" \
-        {% if dag_run.conf.train.limit %} \
+        {% if dag_run.conf.train.limit | default(false) %} \
             --limit "{{ dag_run.conf.train.limit }}" \
         {% endif %} \
     '''

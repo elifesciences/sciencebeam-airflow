@@ -1,4 +1,4 @@
-FROM apache/airflow:1.10.14-python3.6
+FROM apache/airflow:2.0.1-python3.6
 
 USER root
 
@@ -56,5 +56,5 @@ RUN cd ${HELM_CHARTS_DIR}/sciencebeam \
   && helm dep update
 
 COPY --chown=airflow:airflow sciencebeam_airflow ./sciencebeam_airflow
-COPY --chown=airflow:airflow setup.py ./
+COPY --chown=airflow:airflow setup.py config/webserver_config.py ./
 RUN pip install -e . --user --no-dependencies
