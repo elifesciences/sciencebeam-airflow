@@ -1,0 +1,17 @@
+version: 2
+updates:
+- package-ecosystem: pip
+  directory: "/"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 10
+  ignore:
+  - dependency-name: apache-airflow[celery,crypto,ssh]
+    versions:
+    - ">= 2.a, < 3"
+  - dependency-name: setuptools
+    versions:
+    - 52.0.0
+  - dependency-name: pip
+    versions:
+    - "21.0"
