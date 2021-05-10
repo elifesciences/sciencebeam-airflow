@@ -2,6 +2,8 @@ import os
 
 from airflow.models import DAG
 
+from sciencebeam_airflow.utils.config import get_nested_prop
+
 from sciencebeam_dag_ids import ScienceBeamDagIds
 
 from sciencebeam_dag_utils import (
@@ -74,6 +76,13 @@ class ScienceBeamEvaluateMacros:
     def get_sciencebeam_judge_image(self, conf: dict) -> str:
         return get_sciencebeam_judge_image(conf)
 
+    def get_sciencebeam_judge_container_requests(self, conf: dict) -> str:
+        return get_nested_prop(
+            conf,
+            ['config', 'evaluate', 'container', 'requests'],
+            DEFAULT_JUDGE_CONTAINER_REQUESTS
+        )
+
     def get_dataset(self, conf: dict) -> dict:
         return conf.get('dataset')
 
@@ -109,7 +118,7 @@ def create_sciencebeam_evaluate_op(
         image='{{ get_sciencebeam_judge_image(dag_run.conf) }}',
         name='{{ generate_run_name(dag_run.conf.sciencebeam_release_name, "judge") }}',
         preemptible=True,
-        requests=DEFAULT_JUDGE_CONTAINER_REQUESTS,
+        requests='{{ get_sciencebeam_judge_container_requests(dag_run.conf) }}',
         command=SCIENCEBEAM_EVALUATE_TEMPLATE
     )
 
