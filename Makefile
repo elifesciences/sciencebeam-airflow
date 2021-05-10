@@ -144,6 +144,12 @@ dev-watch-slow:
 dev-test: dev-lint dev-pytest
 
 
+bq-document-field-evaluation-table-update-schema:
+	bq update \
+		--schema "sciencebeam_airflow/schemas/document_field_evaluation.bqschema.json" \
+		--table "$(GCP_PROJECT):$(SCIENCEBEAM_NAMESPACE).document_field_evaluation"
+
+
 helm-charts-clone:
 	@if [ ! -d 'helm' ]; then \
 		git clone https://github.com/elifesciences/sciencebeam-charts.git helm; \
