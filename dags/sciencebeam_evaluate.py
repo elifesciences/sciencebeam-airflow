@@ -69,6 +69,9 @@ SCIENCEBEAM_EVALUATE_TEMPLATE = (
 
 
 class ScienceBeamEvaluateMacros:
+    def get_sciencebeam_judge_image(self, conf: dict) -> str:
+        return get_sciencebeam_judge_image(conf)
+
     def get_dataset(self, conf: dict) -> dict:
         return conf.get('dataset')
 
@@ -97,7 +100,6 @@ def create_sciencebeam_evaluate_op(
         dag, macros: ScienceBeamEvaluateMacros = None,
         task_id='sciencebeam_evaluate'):
     add_sciencebeam_evaluate_dag_macros(dag, macros)
-    add_dag_macro(dag, 'get_sciencebeam_judge_image', get_sciencebeam_judge_image)
     return ContainerRunOperator(
         dag=dag,
         task_id=task_id,
