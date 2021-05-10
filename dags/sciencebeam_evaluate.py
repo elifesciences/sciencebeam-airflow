@@ -9,7 +9,6 @@ from sciencebeam_dag_utils import (
     create_validate_config_operation,
     create_trigger_next_task_dag_operator,
     add_dag_macros,
-    add_dag_macro,
     get_sciencebeam_judge_image
 )
 
@@ -43,7 +42,7 @@ REQUIRED_PROPS = {
 DEFAULT_ARGS = get_default_args()
 
 
-DEFAULT_JUDGE_POD_REQUESTS = 'cpu=500m,memory=800Mi'
+DEFAULT_JUDGE_CONTAINER_REQUESTS = 'cpu=1500m,memory=4096Mi'
 
 
 SCIENCEBEAM_EVALUATE_TEMPLATE = (
@@ -110,7 +109,7 @@ def create_sciencebeam_evaluate_op(
         image='{{ get_sciencebeam_judge_image(dag_run.conf) }}',
         name='{{ generate_run_name(dag_run.conf.sciencebeam_release_name, "judge") }}',
         preemptible=True,
-        requests=DEFAULT_JUDGE_POD_REQUESTS,
+        requests=DEFAULT_JUDGE_CONTAINER_REQUESTS,
         command=SCIENCEBEAM_EVALUATE_TEMPLATE
     )
 

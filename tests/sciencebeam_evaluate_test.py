@@ -6,7 +6,7 @@ import dags.sciencebeam_evaluate as sciencebeam_evaluate_module
 from dags.sciencebeam_evaluate import (
     create_dag,
     create_sciencebeam_evaluate_op,
-    DEFAULT_JUDGE_POD_REQUESTS
+    DEFAULT_JUDGE_CONTAINER_REQUESTS
 )
 
 from .test_utils import create_and_render_command, parse_command_arg
@@ -176,4 +176,4 @@ class TestScienceBeamEvaluate:
             dag_run.conf = DEFAULT_CONF
             rendered_bash_command = _create_and_render_evaluate_command(dag, airflow_context)
             opt = parse_command_arg(rendered_bash_command, {'--requests': str})
-            assert getattr(opt, 'requests') == DEFAULT_JUDGE_POD_REQUESTS
+            assert getattr(opt, 'requests') == DEFAULT_JUDGE_CONTAINER_REQUESTS
