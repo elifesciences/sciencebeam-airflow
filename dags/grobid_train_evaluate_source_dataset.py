@@ -2,7 +2,7 @@ import os
 
 from airflow.models import DAG
 
-from sciencebeam_dag_ids import (
+from sciencebeam_airflow.dags.dag_ids import (
     ScienceBeamDagIds,
     DEFAULT_CONVERT_AND_EVALUATE_TASKS
 )

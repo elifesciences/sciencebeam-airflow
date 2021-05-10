@@ -3,7 +3,7 @@ from airflow.operators.bash import BashOperator
 
 from sciencebeam_airflow.utils.airflow import add_dag_macro
 
-from sciencebeam_dag_ids import ScienceBeamDagIds
+from sciencebeam_airflow.dags.dag_ids import ScienceBeamDagIds
 
 from sciencebeam_dag_utils import (
     get_default_args,

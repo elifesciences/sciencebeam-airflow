@@ -10,7 +10,7 @@ from airflow.operators.bash import BashOperator
 from airflow.operators.python import PythonOperator
 from airflow.models import DAG, DagRun
 
-from sciencebeam_dag_ids import ScienceBeamDagIds
+from sciencebeam_airflow.dags.dag_ids import ScienceBeamDagIds
 
 from sciencebeam_dag_utils import (
     get_default_args,

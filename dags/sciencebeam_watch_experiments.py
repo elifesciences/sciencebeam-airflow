@@ -9,9 +9,8 @@ from airflow.models import DAG
 
 from airflow.operators.python import PythonOperator
 
-from sciencebeam_dag_ids import ScienceBeamDagIds
-
-from sciencebeam_dag_ids import (
+from sciencebeam_airflow.dags.dag_ids import (
+    ScienceBeamDagIds,
     DEFAULT_CONVERT_AND_EVALUATE_TASKS,
     DEFAULT_GROBID_TRAIN_TASKS,
     DEFAULT_AUTOCUT_TRAIN_TASKS

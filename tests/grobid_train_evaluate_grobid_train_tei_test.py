@@ -1,13 +1,13 @@
+from sciencebeam_airflow.dags.dag_ids import (
+    ScienceBeamDagIds,
+    DEFAULT_EVALUATE_TASKS
+)
+
 from dags.sciencebeam_dag_conf import (
     ScienceBeamDagConf,
     ScienceBeamTrainDagConf,
     ScienceBeamDatasetDagConf,
     ScienceBeamTrainGrobidDagConf
-)
-
-from dags.sciencebeam_dag_ids import (
-    ScienceBeamDagIds,
-    DEFAULT_EVALUATE_TASKS
 )
 
 from dags.sciencebeam_dag_utils import (

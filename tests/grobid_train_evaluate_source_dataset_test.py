@@ -1,5 +1,11 @@
 import os
 
+
+from sciencebeam_airflow.dags.dag_ids import (
+    ScienceBeamDagIds,
+    DEFAULT_CONVERT_AND_EVALUATE_TASKS
+)
+
 from dags.sciencebeam_dag_conf import (
     ScienceBeamDagConf,
     ScienceBeamTrainDagConf,
@@ -7,11 +13,6 @@ from dags.sciencebeam_dag_conf import (
     get_output_data_path,
     get_file_list_path,
     get_eval_output_path
-)
-
-from dags.sciencebeam_dag_ids import (
-    ScienceBeamDagIds,
-    DEFAULT_CONVERT_AND_EVALUATE_TASKS
 )
 
 from dags.sciencebeam_dag_utils import (

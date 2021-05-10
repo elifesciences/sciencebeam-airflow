@@ -1,6 +1,6 @@
 from airflow.models import DAG
 
-from sciencebeam_dag_ids import (
+from sciencebeam_airflow.dags.dag_ids import (
     ScienceBeamDagIds,
     DEFAULT_EVALUATE_TASKS
 )

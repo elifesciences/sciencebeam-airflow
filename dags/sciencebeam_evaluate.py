@@ -6,7 +6,7 @@ from sciencebeam_airflow.utils.config import get_nested_prop
 from sciencebeam_airflow.utils.airflow import add_dag_macros
 from sciencebeam_airflow.utils.container_operators import ContainerRunOperator
 
-from sciencebeam_dag_ids import ScienceBeamDagIds
+from sciencebeam_airflow.dags.dag_ids import ScienceBeamDagIds
 
 from sciencebeam_dag_utils import (
     get_default_args,
