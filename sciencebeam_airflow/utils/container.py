@@ -37,23 +37,45 @@ def _get_preemptible_toleration():
     }
 
 
-def _get_preemptible_spec():
+def _get_prefer_preemptible_spec():
     return {
         "affinity": _get_preemptible_affinity(),
         "tolerations": [_get_preemptible_toleration()]
     }
 
 
-def _get_preemptible_json():
+def _get_prefer_preemptible_json():
     return json.dumps({
-        "spec": _get_preemptible_spec()
+        "spec": _get_prefer_preemptible_spec()
     })
 
 
-def _get_helm_preemptible_values(child_chart_names: List[str] = None) -> dict:
-    values = _get_preemptible_spec().copy()
+def _get_select_preemptible_spec():
+    return {
+        "nodeSelector": {
+            "cloud.google.com/gke-preemptible": "true"
+        },
+        "tolerations": [_get_preemptible_toleration()]
+    }
+
+
+def _get_select_preemptible_json():
+    return json.dumps({
+        "spec": _get_select_preemptible_spec()
+    })
+
+
+def _get_helm_prefer_preemptible_values(child_chart_names: List[str] = None) -> dict:
+    values = _get_prefer_preemptible_json().copy()
     for child_chart_name in (child_chart_names or []):
-        values[child_chart_name] = _get_preemptible_spec()
+        values[child_chart_name] = _get_prefer_preemptible_json()
+    return values
+
+
+def _get_helm_select_preemptible_values(child_chart_names: List[str] = None) -> dict:
+    values = _get_select_preemptible_spec().copy()
+    for child_chart_name in (child_chart_names or []):
+        values[child_chart_name] = _get_select_preemptible_spec()
     return values
 
 
