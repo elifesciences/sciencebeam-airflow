@@ -6,6 +6,13 @@ from airflow.operators.bash import BashOperator
 from airflow.models import DAG, DagRun
 
 from sciencebeam_airflow.utils.container import escape_helm_set_value
+from sciencebeam_airflow.utils.airflow import add_dag_macros
+
+from sciencebeam_airflow.utils.container_operators import (
+    ContainerRunOperator,
+    HelmDeployOperator,
+    HelmDeleteOperator
+)
 
 from sciencebeam_dag_ids import ScienceBeamDagIds
 
@@ -13,14 +20,7 @@ from sciencebeam_dag_utils import (
     get_default_args,
     create_validate_config_operation,
     create_trigger_next_task_dag_operator,
-    add_dag_macros,
     get_sciencebeam_image
-)
-
-from container_operators import (
-    ContainerRunOperator,
-    HelmDeployOperator,
-    HelmDeleteOperator
 )
 
 

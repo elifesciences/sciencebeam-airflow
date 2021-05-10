@@ -3,6 +3,8 @@ import os
 from airflow.models import DAG
 
 from sciencebeam_airflow.utils.config import get_nested_prop
+from sciencebeam_airflow.utils.airflow import add_dag_macros
+from sciencebeam_airflow.utils.container_operators import ContainerRunOperator
 
 from sciencebeam_dag_ids import ScienceBeamDagIds
 
@@ -10,11 +12,8 @@ from sciencebeam_dag_utils import (
     get_default_args,
     create_validate_config_operation,
     create_trigger_next_task_dag_operator,
-    add_dag_macros,
     get_sciencebeam_judge_image
 )
-
-from container_operators import ContainerRunOperator
 
 
 class ConfigProps:

@@ -14,7 +14,7 @@ from sciencebeam_airflow.utils.container import (
     get_helm_delete_command
 )
 
-from sciencebeam_dag_utils import add_dag_macro
+from sciencebeam_airflow.utils.airflow import add_dag_macro
 
 
 LOGGER = logging.getLogger(__name__)
