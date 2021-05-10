@@ -16,7 +16,7 @@ from sciencebeam_airflow.dags.dag_ids import (
     DEFAULT_AUTOCUT_TRAIN_TASKS
 )
 
-from sciencebeam_dag_conf import (
+from sciencebeam_airflow.dags.dag_conf import (
     get_output_data_path,
     get_file_list_path,
     get_eval_output_path

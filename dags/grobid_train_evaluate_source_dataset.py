@@ -7,7 +7,7 @@ from sciencebeam_airflow.dags.dag_ids import (
     DEFAULT_CONVERT_AND_EVALUATE_TASKS
 )
 
-from sciencebeam_dag_conf import (
+from sciencebeam_airflow.dags.dag_conf import (
     ScienceBeamDagConf,
     ScienceBeamTrainDagConf,
     ScienceBeamDatasetDagConf,

@@ -20,7 +20,7 @@ from airflow.utils import timezone
 from airflow.api.common.experimental.trigger_dag import trigger_dag
 
 
-from sciencebeam_dag_conf import ScienceBeamDagConf
+from sciencebeam_airflow.dags.dag_conf import ScienceBeamDagConf
 
 
 LOGGER = logging.getLogger(__name__)
