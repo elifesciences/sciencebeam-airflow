@@ -10,6 +10,10 @@ import yaml
 
 LOGGER = logging.getLogger(__name__)
 
+KUBECTL_RUN_COMMAND_PREFIX = (
+    'kubectl run --rm --attach --restart=Never --generator=run-pod/v1'
+)
+
 
 def _get_preemptible_affinity():
     return {
@@ -172,3 +176,38 @@ def get_helm_delete_command(
             helm_args=' ' + helm_args if helm_args else ''
         ).strip()
     )
+
+
+def get_container_run_command(
+    namespace: str,
+    image: str,
+    name: str,
+    command: str,
+    preemptible: bool = False,
+    prefer_preemptible: bool = False,
+    requests: str = ''
+):
+    kubectl_args = ''
+    if preemptible:
+        kubectl_args = "--overrides '{json}'".format(json=_get_select_preemptible_json())
+    elif prefer_preemptible:
+        kubectl_args = "--overrides '{json}'".format(json=_get_prefer_preemptible_json())
+    if requests:
+        kubectl_args += " --requests '{requests}'".format(requests=requests)
+    return (
+        '''
+        {kubectl_run_command_prefix} \
+            --namespace="{namespace}" \
+            {kubectl_args} \
+            --image="{image}" \
+            "{name}" -- \
+            {command}
+        '''.format(
+            kubectl_run_command_prefix=KUBECTL_RUN_COMMAND_PREFIX,
+            namespace=namespace,
+            kubectl_args=kubectl_args,
+            image=image,
+            name=name,
+            command=command
+        )
+    ).strip()
