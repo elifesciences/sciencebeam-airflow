@@ -5,7 +5,8 @@ import pytest
 import dags.sciencebeam_evaluate as sciencebeam_evaluate_module
 from dags.sciencebeam_evaluate import (
     create_dag,
-    create_sciencebeam_evaluate_op
+    create_sciencebeam_evaluate_op,
+    DEFAULT_JUDGE_POD_REQUESTS
 )
 
 from .test_utils import create_and_render_command, parse_command_arg
@@ -170,3 +171,9 @@ class TestScienceBeamEvaluate:
             rendered_bash_command = _create_and_render_evaluate_command(dag, airflow_context)
             opt = parse_command_arg(rendered_bash_command, {'--target-file-list': str})
             assert getattr(opt, 'target_file_list') == '/path/to/source/file-list.lst'
+
+        def test_should_use_default_pod_requests(self, dag, airflow_context, dag_run):
+            dag_run.conf = DEFAULT_CONF
+            rendered_bash_command = _create_and_render_evaluate_command(dag, airflow_context)
+            opt = parse_command_arg(rendered_bash_command, {'--requests': str})
+            assert getattr(opt, 'requests') == DEFAULT_JUDGE_POD_REQUESTS

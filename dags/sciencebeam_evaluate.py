@@ -43,6 +43,9 @@ REQUIRED_PROPS = {
 DEFAULT_ARGS = get_default_args()
 
 
+DEFAULT_JUDGE_POD_REQUESTS = 'cpu=500m,memory=800Mi'
+
+
 SCIENCEBEAM_EVALUATE_TEMPLATE = (
     '''
     python -m sciencebeam_judge.evaluation_pipeline \
@@ -107,7 +110,7 @@ def create_sciencebeam_evaluate_op(
         image='{{ get_sciencebeam_judge_image(dag_run.conf) }}',
         name='{{ generate_run_name(dag_run.conf.sciencebeam_release_name, "judge") }}',
         preemptible=True,
-        requests='cpu=500m,memory=800Mi',
+        requests=DEFAULT_JUDGE_POD_REQUESTS,
         command=SCIENCEBEAM_EVALUATE_TEMPLATE
     )
 
