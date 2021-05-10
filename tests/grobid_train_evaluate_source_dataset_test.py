@@ -15,7 +15,7 @@ from sciencebeam_airflow.dags.dag_conf import (
     get_eval_output_path
 )
 
-from dags.sciencebeam_dag_utils import (
+from sciencebeam_airflow.dags.utils import (
     get_combined_run_name
 )
 

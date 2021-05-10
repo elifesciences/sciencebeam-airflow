@@ -12,7 +12,7 @@ from sciencebeam_airflow.dags.dag_conf import (
     ScienceBeamTrainGrobidDagConf
 )
 
-from sciencebeam_dag_utils import (
+from sciencebeam_airflow.dags.utils import (
     get_default_args,
     create_trigger_operator,
     create_trigger_next_task_dag_operator,

@@ -1,4 +1,4 @@
-from dags.sciencebeam_dag_utils import get_sciencebeam_image
+from sciencebeam_airflow.dags.utils import get_sciencebeam_image
 
 from sciencebeam_airflow.tools.deploy_sciencebeam import (
     get_model_sciencebeam_image,

@@ -3,7 +3,7 @@ from typing import List
 
 import pytest
 
-from dags.sciencebeam_dag_utils import get_sciencebeam_image
+from sciencebeam_airflow.dags.utils import get_sciencebeam_image
 
 from dags.sciencebeam_convert import (
     create_dag,

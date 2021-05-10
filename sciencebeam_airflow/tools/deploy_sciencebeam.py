@@ -15,7 +15,7 @@ from sciencebeam_airflow.utils.container import (
 )
 from sciencebeam_airflow.utils.subprocess import run_command
 from sciencebeam_airflow.utils.sciencebeam_env import get_namespace
-from dags.sciencebeam_dag_utils import get_sciencebeam_image
+from sciencebeam_airflow.dags.utils import get_sciencebeam_image
 
 LOGGER = logging.getLogger(__name__)
 

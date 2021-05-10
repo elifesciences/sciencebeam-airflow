@@ -1,4 +1,4 @@
-from sciencebeam_dag_utils import (
+from sciencebeam_airflow.dags.utils import (
     get_app_config_value,
     create_validate_config_operation
 )

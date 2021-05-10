@@ -10,7 +10,7 @@ from sciencebeam_airflow.dags.dag_conf import (
     ScienceBeamTrainGrobidDagConf
 )
 
-from dags.sciencebeam_dag_utils import (
+from sciencebeam_airflow.dags.utils import (
     get_combined_run_name
 )
 

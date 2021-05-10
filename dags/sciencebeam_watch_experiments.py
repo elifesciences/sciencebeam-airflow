@@ -22,7 +22,7 @@ from sciencebeam_airflow.dags.dag_conf import (
     get_eval_output_path
 )
 
-from sciencebeam_dag_utils import (
+from sciencebeam_airflow.dags.utils import (
     get_default_args,
     get_config_data_path,
     parse_bool,

@@ -5,7 +5,7 @@ from sciencebeam_airflow.utils.airflow import add_dag_macro
 
 from sciencebeam_airflow.dags.dag_ids import ScienceBeamDagIds
 
-from sciencebeam_dag_utils import (
+from sciencebeam_airflow.dags.utils import (
     get_default_args,
     create_validate_config_operation,
     create_trigger_next_task_dag_operator,

@@ -2,8 +2,8 @@ from unittest.mock import patch, MagicMock
 
 import pytest
 
-import dags.sciencebeam_dag_utils as sciencebeam_dag_utils_module
-from dags.sciencebeam_dag_utils import (
+import sciencebeam_airflow.dags.utils as sciencebeam_dag_utils_module
+from sciencebeam_airflow.dags.utils import (
     truncate_run_id,
     create_watch_sensor,
     create_list_operator,

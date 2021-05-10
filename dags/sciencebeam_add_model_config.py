@@ -7,7 +7,7 @@ from airflow.models import DAG, DagRun
 
 from sciencebeam_airflow.dags.dag_ids import ScienceBeamDagIds
 
-from sciencebeam_dag_utils import (
+from sciencebeam_airflow.dags.utils import (
     get_default_args,
     get_config_data_path,
     create_validate_config_operation,
