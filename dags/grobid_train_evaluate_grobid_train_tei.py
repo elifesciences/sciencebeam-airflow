@@ -20,7 +20,7 @@ from sciencebeam_airflow.dags.utils import (
     get_combined_run_name
 )
 
-from grobid_train_utils import (
+from sciencebeam_airflow.dags.grobid_train_utils import (
     create_grobid_train_validate_config_operation,
     DEFAULT_GROBID_TRAIN_FIELDS
 )

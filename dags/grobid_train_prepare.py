@@ -11,7 +11,7 @@ from sciencebeam_airflow.dags.utils import (
     create_trigger_next_task_dag_operator
 )
 
-from grobid_train_utils import (
+from sciencebeam_airflow.dags.grobid_train_utils import (
     get_grobid_trainer_image,
     get_grobid_trainer_tools_image,
     create_grobid_train_validate_config_operation,

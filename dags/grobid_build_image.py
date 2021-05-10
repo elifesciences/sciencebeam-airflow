@@ -11,7 +11,7 @@ from sciencebeam_airflow.dags.utils import (
     get_gcp_project_id
 )
 
-from grobid_train_utils import (
+from sciencebeam_airflow.dags.grobid_train_utils import (
     get_grobid_trainer_tools_image,
     create_grobid_train_validate_config_operation
 )
