@@ -34,6 +34,7 @@ class ContainerRunOperator(BashOperator):
             command,
             preemptible: bool = False,
             prefer_preemptible: bool = False,
+            highcpu: bool = False,
             requests='',
             **kwargs):
         add_dag_macro(dag, 'get_container_run_command', self.get_container_run_command)
@@ -45,6 +46,7 @@ class ContainerRunOperator(BashOperator):
             command=command,
             preemptible=preemptible,
             prefer_preemptible=prefer_preemptible,
+            highcpu=highcpu,
             requests=requests
         )
         bash_command = '{{ get_container_run_command() }}'
@@ -53,7 +55,7 @@ class ContainerRunOperator(BashOperator):
 
     def fix_boolean_container_args(self):
         # currently render template is converting the booleans to a string
-        for name in ['preemptible', 'prefer_preemptible']:
+        for name in ['preemptible', 'prefer_preemptible', 'highcpu']:
             value = self.container_args[name]
             if isinstance(value, str):
                 self.container_args[name] = (value.lower() == 'true')

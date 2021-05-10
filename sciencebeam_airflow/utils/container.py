@@ -41,6 +41,15 @@ def _get_preemptible_toleration():
     }
 
 
+def _get_highcpu_toleration():
+    return {
+        "key": "price",
+        "operator": "Equal",
+        "value": "highcpu",
+        "effect": "NoSchedule"
+    }
+
+
 def _get_prefer_preemptible_spec():
     return {
         "affinity": _get_preemptible_affinity(),
@@ -66,6 +75,18 @@ def _get_select_preemptible_spec():
 def _get_select_preemptible_json():
     return json.dumps({
         "spec": _get_select_preemptible_spec()
+    })
+
+
+def _get_highcpu_spec():
+    return {
+        "tolerations": [_get_highcpu_toleration()]
+    }
+
+
+def _get_highcpu_json():
+    return json.dumps({
+        "spec": _get_highcpu_spec()
     })
 
 
@@ -185,10 +206,15 @@ def get_container_run_command(
     command: str,
     preemptible: bool = False,
     prefer_preemptible: bool = False,
+    highcpu: bool = False,
     requests: str = ''
 ):
     kubectl_args = ''
-    if preemptible:
+    if highcpu:
+        if not requests:
+            raise ValueError('requests required with highcpu')
+        kubectl_args += " --overrides '{json}'".format(json=_get_highcpu_json())
+    elif preemptible:
         kubectl_args = "--overrides '{json}'".format(json=_get_select_preemptible_json())
     elif prefer_preemptible:
         kubectl_args = "--overrides '{json}'".format(json=_get_prefer_preemptible_json())

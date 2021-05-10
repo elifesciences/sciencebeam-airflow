@@ -6,7 +6,8 @@ from sciencebeam_airflow.utils.container import (
     get_helm_delete_command,
     get_container_run_command,
     _get_prefer_preemptible_json,
-    _get_select_preemptible_json
+    _get_select_preemptible_json,
+    _get_highcpu_json
 )
 
 from ..test_utils import parse_command_arg
@@ -87,3 +88,17 @@ class TestGetContainerRunCommand:
         )
         args = parse_command_arg(command, {'--overrides': str})
         assert args.overrides == _get_select_preemptible_json()
+
+    def test_should_add_highcpu_spec(self):
+        container_requests = 'cpu=123m,memory=123Mi'
+        command = get_container_run_command(
+            namespace='namespace1',
+            image='image1',
+            name='name1',
+            command='command1',
+            highcpu=True,
+            requests=container_requests
+        )
+        args = parse_command_arg(command, {'--overrides': str, '--requests': str})
+        assert args.overrides == _get_highcpu_json()
+        assert args.requests == container_requests
