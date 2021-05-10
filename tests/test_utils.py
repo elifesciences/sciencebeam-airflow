@@ -32,9 +32,8 @@ def parse_command_arg(command: str, arg_type_by_name: Dict[str, Type]) -> argpar
 
 
 def render_bash_command(operator: BashOperator, airflow_context: dict) -> str:
-    return operator.render_template(
-        operator.bash_command, airflow_context
-    )
+    operator.render_template_fields(airflow_context)
+    return operator.bash_command
 
 
 def create_and_render_command(operator, airflow_context: dict) -> str:

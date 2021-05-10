@@ -37,7 +37,7 @@ class TestGetHelmDeleteCommand:
 
 
 def _normalize_command(command: str) -> str:
-    return re.sub(r'\s+', ' ', command)
+    return re.sub(r'[ ]+', ' ', command)
 
 
 class TestGetContainerRunCommand:

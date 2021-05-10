@@ -8,10 +8,9 @@ from airflow.models import DAG
 from airflow.operators.bash import BashOperator
 
 from sciencebeam_airflow.utils.container import (
-    _get_prefer_preemptible_json,
-    _get_select_preemptible_json,
     _get_helm_select_preemptible_values,
-    get_helm_delete_command
+    get_helm_delete_command,
+    get_container_run_command
 )
 
 from sciencebeam_airflow.utils.airflow import add_dag_macro
@@ -37,31 +36,34 @@ class ContainerRunOperator(BashOperator):
             prefer_preemptible: bool = False,
             requests='',
             **kwargs):
-        kubectl_args = ''
-        if preemptible:
-            kubectl_args = "--overrides '{json}'".format(json=_get_select_preemptible_json())
-        elif prefer_preemptible:
-            kubectl_args = "--overrides '{json}'".format(json=_get_prefer_preemptible_json())
-        if requests:
-            kubectl_args += " --requests '{requests}'".format(requests=requests)
-        bash_command = (
-            '''
-            kubectl run --rm --attach --restart=Never --generator=run-pod/v1 \
-                --namespace "{namespace}" \
-                {kubectl_args} \
-                --image={image} \
-                "{name}" -- \
-            {command}
-            '''.format(
-                namespace=namespace,
-                kubectl_args=kubectl_args,
-                image=image,
-                name=name,
-                command=command.strip()
-            )
-        ).strip()
+        add_dag_macro(dag, 'get_container_run_command', self.get_container_run_command)
         add_dag_macro(dag, 'generate_run_name', generate_run_name)
+        self.container_args = dict(
+            namespace=namespace,
+            image=image,
+            name=name,
+            command=command,
+            preemptible=preemptible,
+            prefer_preemptible=prefer_preemptible,
+            requests=requests
+        )
+        bash_command = '{{ get_container_run_command() }}'
         super().__init__(dag=dag, bash_command=bash_command, **kwargs)
+        self.template_fields = tuple(['container_args'] + list(self.template_fields))
+
+    def fix_boolean_container_args(self):
+        # currently render template is converting the booleans to a string
+        for name in ['preemptible', 'prefer_preemptible']:
+            value = self.container_args[name]
+            if isinstance(value, str):
+                self.container_args[name] = (value.lower() == 'true')
+
+    def get_container_run_command(self):
+        self.fix_boolean_container_args()
+        LOGGER.info('container_args: %s', self.container_args)
+        return get_container_run_command(
+            **self.container_args
+        )
 
 
 class HelmDeployOperator(BashOperator):

@@ -208,6 +208,6 @@ def get_container_run_command(
             kubectl_args=kubectl_args,
             image=image,
             name=name,
-            command=command
+            command=command.strip()
         )
     ).strip()
