@@ -128,7 +128,7 @@ class GeneratedHelmDeployArgs:
             child_chart_names = self.child_chart_names
             if self.get_child_chart_names:
                 child_chart_names = self.get_child_chart_names()
-            values_file.write_text(yaml.safe_dump(_get_helm_preemptible_values(
+            values_file.write_text(yaml.safe_dump(_get_helm_prefer_preemptible_values(
                 child_chart_names
             )))
             LOGGER.info('helm values (%s): %s', values_file, values_file.read_text())
