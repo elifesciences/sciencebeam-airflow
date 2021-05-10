@@ -1,0 +1,82 @@
+[
+  {
+    "mode": "NULLABLE",
+    "name": "created_timestamp",
+    "type": "TIMESTAMP"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dataset_name",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "model_name",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "prediction_file",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "target_file",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "field_name",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "evaluation_method",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "scoring_type",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "tp",
+    "type": "INTEGER"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "fp",
+    "type": "INTEGER"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "fn",
+    "type": "INTEGER"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "tn",
+    "type": "INTEGER"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "expected",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "actual",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "expected_context",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "actual_context",
+    "type": "STRING"
+  }
+]
