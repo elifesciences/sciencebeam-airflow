@@ -172,6 +172,19 @@ class TestScienceBeamEvaluate:
             opt = parse_command_arg(rendered_bash_command, {'--target-file-list': str})
             assert getattr(opt, 'target_file_list') == '/path/to/source/file-list.lst'
 
+        def test_should_add_sciencebeam_judge_args(self, dag, airflow_context, dag_run):
+            dag_run.conf = {
+                **DEFAULT_CONF,
+                'config': {
+                    'evaluate': {
+                        'sciencebeam_judge_args': 'arg1'
+                    }
+                }
+            }
+            rendered_bash_command = _create_and_render_evaluate_command(dag, airflow_context)
+            opt = parse_command_arg(rendered_bash_command, {})
+            assert opt.remainder[-1:] == ['arg1']
+
         def test_should_use_default_container_requests(self, dag, airflow_context, dag_run):
             dag_run.conf = DEFAULT_CONF
             rendered_bash_command = _create_and_render_evaluate_command(dag, airflow_context)

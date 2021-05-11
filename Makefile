@@ -78,6 +78,7 @@ SCIENCEBEAM_CHARTS_COMMIT = $(shell bash -c 'source .env && echo $$SCIENCEBEAM_C
 FIELDS =
 MEASURES =
 SCORING_TYPE_OVERRIDES =
+SCIENCEBEAM_JUDGE_ARGS =
 
 WORKER_COUNT = 10
 REPLICA_COUNT = 0
@@ -318,6 +319,7 @@ trigger-helm-version:
 				"fields": "$(FIELDS)", \
 				"measures": "$(MEASURES)", \
 				"scoring_type_overrides": "$(SCORING_TYPE_OVERRIDES)", \
+				"sciencebeam_judge_args": "$(SCIENCEBEAM_JUDGE_ARGS)", \
 				"container": { \
 					"requests": "$(JUDGE_CONTAINER_REQUESTS)", \
 					"highcpu": $(JUDGE_CONTAINER_HIGHCPU) \

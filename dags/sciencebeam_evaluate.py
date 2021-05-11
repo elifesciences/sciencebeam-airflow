@@ -67,12 +67,16 @@ SCIENCEBEAM_EVALUATE_TEMPLATE = (
         {% endif %} \
         --num_workers=10 \
         --skip-errors \
-        --limit="{{ dag_run.conf.limit }}"
+        --limit="{{ dag_run.conf.limit }}" \
+        {{ get_nested_prop(dag_run.conf, ['config', 'evaluate', 'sciencebeam_judge_args'], '') }}
     '''
 )
 
 
 class ScienceBeamEvaluateMacros:
+    def get_nested_prop(self, *args, **kwargs):
+        return get_nested_prop(*args, **kwargs)
+
     def get_sciencebeam_judge_image(self, conf: dict) -> str:
         return get_sciencebeam_judge_image(conf)
 
