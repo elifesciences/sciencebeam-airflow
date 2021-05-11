@@ -379,7 +379,7 @@ def get_sciencebeam_image(config: dict = None):
 
 
 DEFAULT_SCIENCEBEAM_JUDGE_IMAGE = (
-    'elifesciences/sciencebeam-judge:0.0.8'
+    'elifesciences/sciencebeam-judge:0.0.15'
 )
 
 
