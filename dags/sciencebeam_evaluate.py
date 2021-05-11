@@ -127,7 +127,7 @@ def create_sciencebeam_evaluate_op(
         name='{{ generate_run_name(dag_run.conf.sciencebeam_release_name, "judge") }}',
         preemptible=True,
         requests=DEFAULT_JUDGE_CONTAINER_REQUESTS,
-        container_kwargs_fn=_macros.get_sciencebeam_judge_container_kwargs,
+        container_overrides_fn=_macros.get_sciencebeam_judge_container_kwargs,
         command=SCIENCEBEAM_EVALUATE_TEMPLATE
     )
 

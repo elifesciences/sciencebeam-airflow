@@ -37,7 +37,7 @@ class ContainerRunOperator(BashOperator):
             prefer_preemptible: Union[str, bool] = False,
             highcpu: Union[str, bool] = False,
             requests='',
-            container_kwargs_fn: Optional[Callable[[dict], dict]] = None,
+            container_overrides_fn: Optional[Callable[[dict], dict]] = None,
             **kwargs):
         add_dag_macro(dag, 'get_container_run_command', self.get_container_run_command)
         add_dag_macro(dag, 'generate_run_name', generate_run_name)
@@ -51,8 +51,8 @@ class ContainerRunOperator(BashOperator):
             highcpu=highcpu,
             requests=requests
         )
-        self.container_kwargs: Optional[dict] = None
-        self.container_kwargs_fn = container_kwargs_fn
+        self.container_overrides: Optional[dict] = None
+        self.container_overrides_fn = container_overrides_fn
         bash_command = '{{ get_container_run_command() }}'
         super().__init__(dag=dag, bash_command=bash_command, **kwargs)
         self.template_fields = tuple(
@@ -67,19 +67,19 @@ class ContainerRunOperator(BashOperator):
                 self.container_args[name] = (value.lower() == 'true')
 
     def render_template_fields(self, context: Dict, *args, **kwargs) -> None:
-        if self.container_kwargs_fn:
+        if self.container_overrides_fn:
             dag_run = context['dag_run']
-            self.container_kwargs = self.container_kwargs_fn(dag_run.conf)
+            self.container_overrides = self.container_overrides_fn(dag_run.conf)
         super().render_template_fields(context, *args, **kwargs)
 
     def get_container_run_command(self):
         self.fix_boolean_container_args()
         LOGGER.info('container_args: %r', self.container_args)
-        LOGGER.info('container_kwargs: %r', self.container_kwargs)
+        LOGGER.info('container_overrides: %r', self.container_overrides)
         return get_container_run_command(
             **{
                 **self.container_args,
-                **(self.container_kwargs or {})
+                **(self.container_overrides or {})
             }
         )
 
