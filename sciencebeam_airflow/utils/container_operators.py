@@ -55,9 +55,8 @@ class ContainerRunOperator(BashOperator):
         self.container_overrides_fn = container_overrides_fn
         bash_command = '{{ get_container_run_command() }}'
         super().__init__(dag=dag, bash_command=bash_command, **kwargs)
-        self.template_fields = tuple(
-            ['container_args'] + list(self.template_fields)
-        )
+        # Note: we are processing the command separately
+        self.template_fields = ('env',)
 
     def fix_boolean_container_args(self):
         # currently render template is converting the booleans to a string
@@ -67,15 +66,37 @@ class ContainerRunOperator(BashOperator):
                 self.container_args[name] = (value.lower() == 'true')
 
     def render_template_fields(self, context: Dict, *args, **kwargs) -> None:
+        LOGGER.info('render_template_fields: self=%r', id(self))
+        LOGGER.info(
+            'render_template_fields: template_fields=%r, context=%r',
+            self.template_fields, context
+        )
+        self.container_args = self.render_template(self.container_args, context)
         if self.container_overrides_fn:
             dag_run = context['dag_run']
             self.container_overrides = self.container_overrides_fn(dag_run.conf)
+        # Note: using a bash command template, seem to result in a separate instance of this class
+        self.bash_command = self.get_container_run_command()
+        LOGGER.info(
+            'render_template_fields: rendered container_args: %r', self.container_args
+        )
+        LOGGER.info(
+            'render_template_fields: rendered container_overrides: %r', self.container_overrides
+        )
         super().render_template_fields(context, *args, **kwargs)
+        LOGGER.info(
+            'render_template_fields: rendered bash_command: %r', self.bash_command
+        )
 
     def get_container_run_command(self):
         self.fix_boolean_container_args()
-        LOGGER.info('container_args: %r', self.container_args)
-        LOGGER.info('container_overrides: %r', self.container_overrides)
+        LOGGER.info('get_container_run_command: self=%r', id(self))
+        LOGGER.info(
+            'get_container_run_command: container_args: %r', self.container_args
+        )
+        LOGGER.info(
+            'get_container_run_command: container_overrides: %r', self.container_overrides
+        )
         return get_container_run_command(
             **{
                 **self.container_args,
