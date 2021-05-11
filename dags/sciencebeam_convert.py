@@ -1,6 +1,6 @@
 import logging
 import os
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 from airflow.operators.bash import BashOperator
 from airflow.models import DAG, DagRun
@@ -99,6 +99,8 @@ SCIENCEBEAM_GET_OUTPUT_FILE_LIST_TEMPLATE = (
     '''
 )
 
+DEFAULT_CONVERT_CONTAINER_REQUESTS = 'cpu=500m,memory=2048Mi'
+
 
 def parse_image_name_tag(image):
     return image.split(':')
@@ -163,6 +165,9 @@ class ScienceBeamConvertMacros:
     def get_convert_config(self, conf: dict) -> dict:
         return conf.get('config', {}).get('convert', {})
 
+    def get_sciencebeam_convert_container_kwargs(self, conf: dict) -> dict:
+        return self.get_convert_config(conf).get('container', {})
+
     def get_worker_count(self, conf: dict) -> str:
         return int(self.get_convert_config(conf).get('worker_count', DEFAULT_WORKER_COUNT))
 
@@ -206,10 +211,14 @@ class ScienceBeamConvertMacros:
         )
 
 
-def add_sciencebeam_convert_dag_macros(dag: DAG, macros: ScienceBeamConvertMacros = None):
+def add_sciencebeam_convert_dag_macros(
+    dag: DAG,
+    macros: Optional[ScienceBeamConvertMacros] = None
+) -> ScienceBeamConvertMacros:
     if macros is None:
         macros = ScienceBeamConvertMacros()
     add_dag_macros(dag, macros)
+    return macros
 
 
 def create_deploy_sciencebeam_op(
@@ -244,7 +253,7 @@ def create_delete_sciencebeam_op(dag, task_id='delete_sciencebeam'):
 def create_sciencebeam_convert_op(
         dag, macros: ScienceBeamConvertMacros = None,
         task_id='sciencebeam_convert') -> BashOperator:
-    add_sciencebeam_convert_dag_macros(dag, macros)
+    _macros = add_sciencebeam_convert_dag_macros(dag, macros)
     return ContainerRunOperator(
         dag=dag,
         task_id=task_id,
@@ -252,8 +261,9 @@ def create_sciencebeam_convert_op(
         image='{{ get_sciencebeam_image(dag_run.conf) }}',
         name='{{ generate_run_name(dag_run.conf.sciencebeam_release_name, "convert") }}',
         preemptible=True,
-        requests='cpu=300m,memory=800Mi',
-        command=SCIENCEBEAM_CONVERT_TEMPLATE,
+        requests=DEFAULT_CONVERT_CONTAINER_REQUESTS,
+        container_overrides_fn=_macros.get_sciencebeam_convert_container_kwargs,
+        command=SCIENCEBEAM_CONVERT_TEMPLATE
     )
 
 

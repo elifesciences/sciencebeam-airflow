@@ -83,6 +83,9 @@ SCIENCEBEAM_JUDGE_ARGS =
 WORKER_COUNT = 10
 REPLICA_COUNT = 0
 
+CONVERT_CONTAINER_REQUESTS = cpu=500m,memory=2048Mi
+CONVERT_CONTAINER_HIGHCPU = false
+
 JUDGE_CONTAINER_REQUESTS = cpu=1500m,memory=4096Mi
 JUDGE_CONTAINER_HIGHCPU = false
 
@@ -313,7 +316,11 @@ trigger-helm-version:
 		"config": { \
 			"convert": { \
 				"worker_count": "$(WORKER_COUNT)", \
-				"replica_count": "$(REPLICA_COUNT)" \
+				"replica_count": "$(REPLICA_COUNT)", \
+				"container": { \
+					"requests": "$(CONVERT_CONTAINER_REQUESTS)", \
+					"highcpu": $(CONVERT_CONTAINER_HIGHCPU) \
+				} \
 			}, \
 			"evaluate": { \
 				"fields": "$(FIELDS)", \

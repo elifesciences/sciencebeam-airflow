@@ -13,7 +13,8 @@ from dags.sciencebeam_convert import (
     create_deploy_sciencebeam_op,
     create_sciencebeam_convert_op,
     ScienceBeamConvertMacros,
-    DEFAULT_WORKER_COUNT
+    DEFAULT_WORKER_COUNT,
+    DEFAULT_CONVERT_CONTAINER_REQUESTS
 )
 
 from .test_utils import (
@@ -308,3 +309,25 @@ class TestScienceBeamConvert:
             rendered_bash_command = _create_and_render_convert_command(dag, airflow_context)
             opt = parse_command_arg(rendered_bash_command, {'--num-workers': str})
             assert getattr(opt, 'num_workers') == '123'
+
+        def test_should_use_default_container_requests(self, dag, airflow_context, dag_run):
+            dag_run.conf = DEFAULT_CONF
+            rendered_bash_command = _create_and_render_convert_command(dag, airflow_context)
+            opt = parse_command_arg(rendered_bash_command, {'--requests': str})
+            assert getattr(opt, 'requests') == DEFAULT_CONVERT_CONTAINER_REQUESTS
+
+        def test_should_be_able_to_override_container_requests(self, dag, airflow_context, dag_run):
+            container_requests = 'cpu=123m,memory=123Mi'
+            dag_run.conf = {
+                **DEFAULT_CONF,
+                'config': {
+                    'convert': {
+                        'container': {
+                            'requests': container_requests
+                        }
+                    }
+                }
+            }
+            rendered_bash_command = _create_and_render_convert_command(dag, airflow_context)
+            opt = parse_command_arg(rendered_bash_command, {'--requests': str})
+            assert getattr(opt, 'requests') == container_requests
