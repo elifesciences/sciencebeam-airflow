@@ -1,6 +1,7 @@
 import logging
 from pathlib import Path
 from tempfile import mkdtemp
+from typing import Callable, Dict, Optional, Union
 
 import yaml
 
@@ -28,14 +29,15 @@ class ContainerRunOperator(BashOperator):
     def __init__(  # pylint: disable=too-many-arguments
             self,
             dag,
-            namespace,
-            image,
-            name,
-            command,
-            preemptible: bool = False,
-            prefer_preemptible: bool = False,
-            highcpu: bool = False,
+            namespace: str,
+            image: str,
+            name: str,
+            command: str,
+            preemptible: Union[str, bool] = False,
+            prefer_preemptible: Union[str, bool] = False,
+            highcpu: Union[str, bool] = False,
             requests='',
+            container_kwargs_fn: Optional[Callable[[dict], dict]] = None,
             **kwargs):
         add_dag_macro(dag, 'get_container_run_command', self.get_container_run_command)
         add_dag_macro(dag, 'generate_run_name', generate_run_name)
@@ -49,9 +51,13 @@ class ContainerRunOperator(BashOperator):
             highcpu=highcpu,
             requests=requests
         )
+        self.container_kwargs: Optional[dict] = None
+        self.container_kwargs_fn = container_kwargs_fn
         bash_command = '{{ get_container_run_command() }}'
         super().__init__(dag=dag, bash_command=bash_command, **kwargs)
-        self.template_fields = tuple(['container_args'] + list(self.template_fields))
+        self.template_fields = tuple(
+            ['container_args'] + list(self.template_fields)
+        )
 
     def fix_boolean_container_args(self):
         # currently render template is converting the booleans to a string
@@ -60,11 +66,21 @@ class ContainerRunOperator(BashOperator):
             if isinstance(value, str):
                 self.container_args[name] = (value.lower() == 'true')
 
+    def render_template_fields(self, context: Dict, *args, **kwargs) -> None:
+        if self.container_kwargs_fn:
+            dag_run = context['dag_run']
+            self.container_kwargs = self.container_kwargs_fn(dag_run.conf)
+        super().render_template_fields(context, *args, **kwargs)
+
     def get_container_run_command(self):
         self.fix_boolean_container_args()
-        LOGGER.info('container_args: %s', self.container_args)
+        LOGGER.info('container_args: %r', self.container_args)
+        LOGGER.info('container_kwargs: %r', self.container_kwargs)
         return get_container_run_command(
-            **self.container_args
+            **{
+                **self.container_args,
+                **(self.container_kwargs or {})
+            }
         )
 
 

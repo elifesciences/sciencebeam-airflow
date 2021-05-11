@@ -1,4 +1,5 @@
 import os
+from typing import Optional
 
 from airflow.models import DAG
 
@@ -75,11 +76,11 @@ class ScienceBeamEvaluateMacros:
     def get_sciencebeam_judge_image(self, conf: dict) -> str:
         return get_sciencebeam_judge_image(conf)
 
-    def get_sciencebeam_judge_container_requests(self, conf: dict) -> str:
+    def get_sciencebeam_judge_container_kwargs(self, conf: dict) -> dict:
         return get_nested_prop(
             conf,
-            ['config', 'evaluate', 'container', 'requests'],
-            DEFAULT_JUDGE_CONTAINER_REQUESTS
+            ['config', 'evaluate', 'container'],
+            {}
         )
 
     def get_dataset(self, conf: dict) -> dict:
@@ -100,16 +101,20 @@ class ScienceBeamEvaluateMacros:
         )
 
 
-def add_sciencebeam_evaluate_dag_macros(dag: DAG, macros: ScienceBeamEvaluateMacros = None):
+def add_sciencebeam_evaluate_dag_macros(
+    dag: DAG,
+    macros: Optional[ScienceBeamEvaluateMacros] = None
+) -> ScienceBeamEvaluateMacros:
     if macros is None:
         macros = ScienceBeamEvaluateMacros()
     add_dag_macros(dag, macros)
+    return macros
 
 
 def create_sciencebeam_evaluate_op(
-        dag, macros: ScienceBeamEvaluateMacros = None,
-        task_id='sciencebeam_evaluate'):
-    add_sciencebeam_evaluate_dag_macros(dag, macros)
+        dag, macros: Optional[ScienceBeamEvaluateMacros] = None,
+        task_id: str = 'sciencebeam_evaluate'):
+    _macros = add_sciencebeam_evaluate_dag_macros(dag, macros)
     return ContainerRunOperator(
         dag=dag,
         task_id=task_id,
@@ -117,7 +122,8 @@ def create_sciencebeam_evaluate_op(
         image='{{ get_sciencebeam_judge_image(dag_run.conf) }}',
         name='{{ generate_run_name(dag_run.conf.sciencebeam_release_name, "judge") }}',
         preemptible=True,
-        requests='{{ get_sciencebeam_judge_container_requests(dag_run.conf) }}',
+        requests=DEFAULT_JUDGE_CONTAINER_REQUESTS,
+        container_kwargs_fn=_macros.get_sciencebeam_judge_container_kwargs,
         command=SCIENCEBEAM_EVALUATE_TEMPLATE
     )
 
