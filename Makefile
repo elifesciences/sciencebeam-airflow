@@ -82,6 +82,9 @@ SCORING_TYPE_OVERRIDES =
 WORKER_COUNT = 10
 REPLICA_COUNT = 0
 
+JUDGE_CONTAINER_REQUESTS = cpu=1500m,memory=4096Mi
+JUDGE_CONTAINER_HIGHCPU = false
+
 ARGS =
 
 
@@ -314,7 +317,11 @@ trigger-helm-version:
 			"evaluate": { \
 				"fields": "$(FIELDS)", \
 				"measures": "$(MEASURES)", \
-				"scoring_type_overrides": "$(SCORING_TYPE_OVERRIDES)" \
+				"scoring_type_overrides": "$(SCORING_TYPE_OVERRIDES)", \
+				"container": { \
+					"requests": "$(JUDGE_CONTAINER_REQUESTS)", \
+					"highcpu": $(JUDGE_CONTAINER_HIGHCPU) \
+				} \
 			} \
 		}, \
 		"model_name": "$(MODEL_NAME)", \
