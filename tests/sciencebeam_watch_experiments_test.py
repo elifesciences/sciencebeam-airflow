@@ -2,7 +2,7 @@ from unittest.mock import patch
 
 import pytest
 
-from dags.sciencebeam_dag_ids import (
+from sciencebeam_airflow.dags.dag_ids import (
     DEFAULT_CONVERT_AND_EVALUATE_TASKS,
     DEFAULT_GROBID_TRAIN_TASKS,
     DEFAULT_AUTOCUT_TRAIN_TASKS

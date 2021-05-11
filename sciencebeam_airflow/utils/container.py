@@ -10,6 +10,10 @@ import yaml
 
 LOGGER = logging.getLogger(__name__)
 
+KUBECTL_RUN_COMMAND_PREFIX = (
+    'kubectl run --rm --attach --restart=Never --generator=run-pod/v1'
+)
+
 
 def _get_preemptible_affinity():
     return {
@@ -37,23 +41,66 @@ def _get_preemptible_toleration():
     }
 
 
-def _get_preemptible_spec():
+def _get_highcpu_toleration():
+    return {
+        "key": "price",
+        "operator": "Equal",
+        "value": "highcpu",
+        "effect": "NoSchedule"
+    }
+
+
+def _get_prefer_preemptible_spec():
     return {
         "affinity": _get_preemptible_affinity(),
         "tolerations": [_get_preemptible_toleration()]
     }
 
 
-def _get_preemptible_json():
+def _get_prefer_preemptible_json():
     return json.dumps({
-        "spec": _get_preemptible_spec()
+        "spec": _get_prefer_preemptible_spec()
     })
 
 
-def _get_helm_preemptible_values(child_chart_names: List[str] = None) -> dict:
-    values = _get_preemptible_spec().copy()
+def _get_select_preemptible_spec():
+    return {
+        "nodeSelector": {
+            "cloud.google.com/gke-preemptible": "true"
+        },
+        "tolerations": [_get_preemptible_toleration()]
+    }
+
+
+def _get_select_preemptible_json():
+    return json.dumps({
+        "spec": _get_select_preemptible_spec()
+    })
+
+
+def _get_highcpu_spec():
+    return {
+        "tolerations": [_get_highcpu_toleration()]
+    }
+
+
+def _get_highcpu_json():
+    return json.dumps({
+        "spec": _get_highcpu_spec()
+    })
+
+
+def _get_helm_prefer_preemptible_values(child_chart_names: List[str] = None) -> dict:
+    values = _get_prefer_preemptible_json().copy()
     for child_chart_name in (child_chart_names or []):
-        values[child_chart_name] = _get_preemptible_spec()
+        values[child_chart_name] = _get_prefer_preemptible_json()
+    return values
+
+
+def _get_helm_select_preemptible_values(child_chart_names: List[str] = None) -> dict:
+    values = _get_select_preemptible_spec().copy()
+    for child_chart_name in (child_chart_names or []):
+        values[child_chart_name] = _get_select_preemptible_spec()
     return values
 
 
@@ -106,7 +153,7 @@ class GeneratedHelmDeployArgs:
             child_chart_names = self.child_chart_names
             if self.get_child_chart_names:
                 child_chart_names = self.get_child_chart_names()
-            values_file.write_text(yaml.safe_dump(_get_helm_preemptible_values(
+            values_file.write_text(yaml.safe_dump(_get_helm_prefer_preemptible_values(
                 child_chart_names
             )))
             LOGGER.info('helm values (%s): %s', values_file, values_file.read_text())
@@ -150,3 +197,43 @@ def get_helm_delete_command(
             helm_args=' ' + helm_args if helm_args else ''
         ).strip()
     )
+
+
+def get_container_run_command(
+    namespace: str,
+    image: str,
+    name: str,
+    command: str,
+    preemptible: bool = False,
+    prefer_preemptible: bool = False,
+    highcpu: bool = False,
+    requests: str = ''
+):
+    kubectl_args = ''
+    if highcpu:
+        if not requests:
+            raise ValueError('requests required with highcpu')
+        kubectl_args += " --overrides '{json}'".format(json=_get_highcpu_json())
+    elif preemptible:
+        kubectl_args = "--overrides '{json}'".format(json=_get_select_preemptible_json())
+    elif prefer_preemptible:
+        kubectl_args = "--overrides '{json}'".format(json=_get_prefer_preemptible_json())
+    if requests:
+        kubectl_args += " --requests '{requests}'".format(requests=requests)
+    return (
+        '''
+        {kubectl_run_command_prefix} \
+            --namespace="{namespace}" \
+            {kubectl_args} \
+            --image="{image}" \
+            "{name}" -- \
+            {command}
+        '''.format(
+            kubectl_run_command_prefix=KUBECTL_RUN_COMMAND_PREFIX,
+            namespace=namespace,
+            kubectl_args=kubectl_args,
+            image=image,
+            name=name,
+            command=command.strip()
+        )
+    ).strip()

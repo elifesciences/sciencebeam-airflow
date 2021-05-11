@@ -2,13 +2,13 @@ import os
 
 from airflow.models import DAG
 
-from sciencebeam_dag_ids import ScienceBeamDagIds
+from sciencebeam_airflow.dags.dag_ids import ScienceBeamDagIds
 
-from sciencebeam_dag_utils import (
+from sciencebeam_airflow.dags.utils import (
     get_default_args
 )
 
-from sciencebeam_convert import (
+from dags.sciencebeam_convert import (
     create_dag as create_sciencebeam_convert_dag,
     ScienceBeamConvertMacros
 )

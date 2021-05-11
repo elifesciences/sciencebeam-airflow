@@ -1,18 +1,18 @@
 from airflow.models import DAG
 
-from sciencebeam_dag_ids import (
+from sciencebeam_airflow.dags.dag_ids import (
     ScienceBeamDagIds,
     DEFAULT_EVALUATE_TASKS
 )
 
-from sciencebeam_dag_conf import (
+from sciencebeam_airflow.dags.dag_conf import (
     ScienceBeamDagConf,
     ScienceBeamTrainDagConf,
     ScienceBeamDatasetDagConf,
     ScienceBeamTrainGrobidDagConf
 )
 
-from sciencebeam_dag_utils import (
+from sciencebeam_airflow.dags.utils import (
     get_default_args,
     create_trigger_operator,
     create_trigger_next_task_dag_operator,
@@ -20,7 +20,7 @@ from sciencebeam_dag_utils import (
     get_combined_run_name
 )
 
-from grobid_train_utils import (
+from sciencebeam_airflow.dags.grobid_train_utils import (
     create_grobid_train_validate_config_operation,
     DEFAULT_GROBID_TRAIN_FIELDS
 )

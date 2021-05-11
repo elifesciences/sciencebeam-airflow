@@ -3,7 +3,6 @@ import logging
 import os
 from datetime import timedelta
 from functools import partial
-from inspect import getmembers
 from pprint import pformat
 from urllib.parse import urlparse
 from pathlib import Path
@@ -21,7 +20,7 @@ from airflow.utils import timezone
 from airflow.api.common.experimental.trigger_dag import trigger_dag
 
 
-from sciencebeam_dag_conf import ScienceBeamDagConf
+from sciencebeam_airflow.dags.dag_conf import ScienceBeamDagConf
 
 
 LOGGER = logging.getLogger(__name__)
@@ -344,22 +343,6 @@ def get_filtered_tasks(conf: dict, tasks: List[str]) -> List[str]:
     return filtered_tasks
 
 
-def add_dag_macro(dag: DAG, macro_name: str, macro_fn: callable):
-    if not dag.user_defined_macros:
-        dag.user_defined_macros = {}
-    dag.user_defined_macros[macro_name] = macro_fn
-
-
-def add_dag_macros(dag: DAG, macros: object):
-    LOGGER.debug('adding macros: %s', macros)
-    for name, value in getmembers(macros):
-        if callable(value):
-            LOGGER.debug('adding macro: %s', name)
-            add_dag_macro(dag, name, value)
-        else:
-            LOGGER.debug('not adding macro, not callable: %s -> %s', name, value)
-
-
 def get_gcp_project_id():
     return os.environ['GOOGLE_CLOUD_PROJECT']
 
@@ -396,7 +379,7 @@ def get_sciencebeam_image(config: dict = None):
 
 
 DEFAULT_SCIENCEBEAM_JUDGE_IMAGE = (
-    'elifesciences/sciencebeam-judge:0.0.8'
+    'elifesciences/sciencebeam-judge:0.0.15'
 )
 
 

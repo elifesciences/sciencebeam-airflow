@@ -1,11 +1,12 @@
 from airflow.models import DAG
 from airflow.operators.bash import BashOperator
 
-from sciencebeam_dag_ids import ScienceBeamDagIds
+from sciencebeam_airflow.utils.airflow import add_dag_macro
 
-from sciencebeam_dag_utils import (
+from sciencebeam_airflow.dags.dag_ids import ScienceBeamDagIds
+
+from sciencebeam_airflow.dags.utils import (
     get_default_args,
-    add_dag_macro,
     create_validate_config_operation,
     create_trigger_next_task_dag_operator,
     get_sciencebeam_gym_image

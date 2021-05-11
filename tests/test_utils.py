@@ -1,7 +1,7 @@
 import argparse
 import shlex
 import logging
-from typing import Dict, Type
+from typing import cast, Dict, Type
 
 from airflow.operators.bash import BashOperator
 
@@ -26,15 +26,14 @@ def parse_command_arg(command: str, arg_type_by_name: Dict[str, Type]) -> argpar
         args.remove('--')
     LOGGER.info('args: %s', args)
     opt, remainder = parser.parse_known_args(args)
-    opt.remainder = remainder
+    setattr(opt, 'remainder', remainder)
     LOGGER.info('opt: %s', opt)
-    return opt
+    return cast(argparse.Namespace, opt)
 
 
 def render_bash_command(operator: BashOperator, airflow_context: dict) -> str:
-    return operator.render_template(
-        operator.bash_command, airflow_context
-    )
+    operator.render_template_fields(airflow_context)
+    return operator.bash_command
 
 
 def create_and_render_command(operator, airflow_context: dict) -> str:

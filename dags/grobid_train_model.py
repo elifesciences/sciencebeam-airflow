@@ -1,19 +1,19 @@
 from airflow.models import DAG
 
-from sciencebeam_dag_ids import ScienceBeamDagIds
+from sciencebeam_airflow.utils.airflow import add_dag_macro
+from sciencebeam_airflow.utils.container_operators import ContainerRunOperator
 
-from sciencebeam_dag_utils import (
+from sciencebeam_airflow.dags.dag_ids import ScienceBeamDagIds
+
+from sciencebeam_airflow.dags.utils import (
     get_default_args,
-    add_dag_macro,
     create_trigger_next_task_dag_operator
 )
 
-from grobid_train_utils import (
+from sciencebeam_airflow.dags.grobid_train_utils import (
     get_grobid_trainer_image,
     create_grobid_train_validate_config_operation
 )
-
-from container_operators import ContainerRunOperator
 
 
 class ConfigProps:

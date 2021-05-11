@@ -1,19 +1,20 @@
 import os
+from typing import Optional
 
 from airflow.models import DAG
 
-from sciencebeam_dag_ids import ScienceBeamDagIds
+from sciencebeam_airflow.utils.config import get_nested_prop
+from sciencebeam_airflow.utils.airflow import add_dag_macros
+from sciencebeam_airflow.utils.container_operators import ContainerRunOperator
 
-from sciencebeam_dag_utils import (
+from sciencebeam_airflow.dags.dag_ids import ScienceBeamDagIds
+
+from sciencebeam_airflow.dags.utils import (
     get_default_args,
     create_validate_config_operation,
     create_trigger_next_task_dag_operator,
-    add_dag_macros,
-    add_dag_macro,
     get_sciencebeam_judge_image
 )
-
-from container_operators import ContainerRunOperator
 
 
 class ConfigProps:
@@ -43,6 +44,9 @@ REQUIRED_PROPS = {
 DEFAULT_ARGS = get_default_args()
 
 
+DEFAULT_JUDGE_CONTAINER_REQUESTS = 'cpu=1500m,memory=4096Mi'
+
+
 SCIENCEBEAM_EVALUATE_TEMPLATE = (
     '''
     python -m sciencebeam_judge.evaluation_pipeline \
@@ -63,12 +67,26 @@ SCIENCEBEAM_EVALUATE_TEMPLATE = (
         {% endif %} \
         --num_workers=10 \
         --skip-errors \
-        --limit="{{ dag_run.conf.limit }}"
+        --limit="{{ dag_run.conf.limit }}" \
+        {{ get_nested_prop(dag_run.conf, ['config', 'evaluate', 'sciencebeam_judge_args'], '') }}
     '''
 )
 
 
 class ScienceBeamEvaluateMacros:
+    def get_nested_prop(self, *args, **kwargs):
+        return get_nested_prop(*args, **kwargs)
+
+    def get_sciencebeam_judge_image(self, conf: dict) -> str:
+        return get_sciencebeam_judge_image(conf)
+
+    def get_sciencebeam_judge_container_kwargs(self, conf: dict) -> dict:
+        return get_nested_prop(
+            conf,
+            ['config', 'evaluate', 'container'],
+            {}
+        )
+
     def get_dataset(self, conf: dict) -> dict:
         return conf.get('dataset')
 
@@ -87,17 +105,20 @@ class ScienceBeamEvaluateMacros:
         )
 
 
-def add_sciencebeam_evaluate_dag_macros(dag: DAG, macros: ScienceBeamEvaluateMacros = None):
+def add_sciencebeam_evaluate_dag_macros(
+    dag: DAG,
+    macros: Optional[ScienceBeamEvaluateMacros] = None
+) -> ScienceBeamEvaluateMacros:
     if macros is None:
         macros = ScienceBeamEvaluateMacros()
     add_dag_macros(dag, macros)
+    return macros
 
 
 def create_sciencebeam_evaluate_op(
-        dag, macros: ScienceBeamEvaluateMacros = None,
-        task_id='sciencebeam_evaluate'):
-    add_sciencebeam_evaluate_dag_macros(dag, macros)
-    add_dag_macro(dag, 'get_sciencebeam_judge_image', get_sciencebeam_judge_image)
+        dag, macros: Optional[ScienceBeamEvaluateMacros] = None,
+        task_id: str = 'sciencebeam_evaluate'):
+    _macros = add_sciencebeam_evaluate_dag_macros(dag, macros)
     return ContainerRunOperator(
         dag=dag,
         task_id=task_id,
@@ -105,7 +126,8 @@ def create_sciencebeam_evaluate_op(
         image='{{ get_sciencebeam_judge_image(dag_run.conf) }}',
         name='{{ generate_run_name(dag_run.conf.sciencebeam_release_name, "judge") }}',
         preemptible=True,
-        requests='cpu=500m,memory=800Mi',
+        requests=DEFAULT_JUDGE_CONTAINER_REQUESTS,
+        container_overrides_fn=_macros.get_sciencebeam_judge_container_kwargs,
         command=SCIENCEBEAM_EVALUATE_TEMPLATE
     )
 

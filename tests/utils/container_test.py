@@ -1,7 +1,16 @@
+import re
+
 from sciencebeam_airflow.utils.container import (
+    KUBECTL_RUN_COMMAND_PREFIX,
     escape_helm_set_value,
-    get_helm_delete_command
+    get_helm_delete_command,
+    get_container_run_command,
+    _get_prefer_preemptible_json,
+    _get_select_preemptible_json,
+    _get_highcpu_json
 )
+
+from ..test_utils import parse_command_arg
 
 
 class TestEscapeHelmSetValue:
@@ -26,3 +35,70 @@ class TestGetHelmDeleteCommand:
             release_name='release1',
             keep_history=True
         ) == 'helm uninstall --keep-history "release1" --namespace="namespace1"'
+
+
+def _normalize_command(command: str) -> str:
+    return re.sub(r'[ ]+', ' ', command)
+
+
+class TestGetContainerRunCommand:
+    def test_should_generate_simle_command(self):
+        assert _normalize_command(get_container_run_command(
+            namespace='namespace1',
+            image='image1',
+            name='name1',
+            command='command1'
+        )) == (
+            f'{KUBECTL_RUN_COMMAND_PREFIX}'
+            ' --namespace="namespace1"'
+            ' --image="image1"'
+            ' "name1" -- '
+            'command1'
+        )
+
+    def test_should_add_requests_if_specified(self):
+        command = get_container_run_command(
+            namespace='namespace1',
+            image='image1',
+            name='name1',
+            command='command1',
+            requests='requests1'
+        )
+        args = parse_command_arg(command, {'--requests': str})
+        assert args.requests == 'requests1'
+
+    def test_should_add_prefer_preemptible(self):
+        command = get_container_run_command(
+            namespace='namespace1',
+            image='image1',
+            name='name1',
+            command='command1',
+            prefer_preemptible=True
+        )
+        args = parse_command_arg(command, {'--overrides': str})
+        assert args.overrides == _get_prefer_preemptible_json()
+
+    def test_should_add_select_preemptible(self):
+        command = get_container_run_command(
+            namespace='namespace1',
+            image='image1',
+            name='name1',
+            command='command1',
+            preemptible=True
+        )
+        args = parse_command_arg(command, {'--overrides': str})
+        assert args.overrides == _get_select_preemptible_json()
+
+    def test_should_add_highcpu_spec(self):
+        container_requests = 'cpu=123m,memory=123Mi'
+        command = get_container_run_command(
+            namespace='namespace1',
+            image='image1',
+            name='name1',
+            command='command1',
+            highcpu=True,
+            requests=container_requests
+        )
+        args = parse_command_arg(command, {'--overrides': str, '--requests': str})
+        assert args.overrides == _get_highcpu_json()
+        assert args.requests == container_requests

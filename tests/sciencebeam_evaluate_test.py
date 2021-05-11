@@ -5,7 +5,8 @@ import pytest
 import dags.sciencebeam_evaluate as sciencebeam_evaluate_module
 from dags.sciencebeam_evaluate import (
     create_dag,
-    create_sciencebeam_evaluate_op
+    create_sciencebeam_evaluate_op,
+    DEFAULT_JUDGE_CONTAINER_REQUESTS
 )
 
 from .test_utils import create_and_render_command, parse_command_arg
@@ -170,3 +171,38 @@ class TestScienceBeamEvaluate:
             rendered_bash_command = _create_and_render_evaluate_command(dag, airflow_context)
             opt = parse_command_arg(rendered_bash_command, {'--target-file-list': str})
             assert getattr(opt, 'target_file_list') == '/path/to/source/file-list.lst'
+
+        def test_should_add_sciencebeam_judge_args(self, dag, airflow_context, dag_run):
+            dag_run.conf = {
+                **DEFAULT_CONF,
+                'config': {
+                    'evaluate': {
+                        'sciencebeam_judge_args': 'arg1'
+                    }
+                }
+            }
+            rendered_bash_command = _create_and_render_evaluate_command(dag, airflow_context)
+            opt = parse_command_arg(rendered_bash_command, {})
+            assert opt.remainder[-1:] == ['arg1']
+
+        def test_should_use_default_container_requests(self, dag, airflow_context, dag_run):
+            dag_run.conf = DEFAULT_CONF
+            rendered_bash_command = _create_and_render_evaluate_command(dag, airflow_context)
+            opt = parse_command_arg(rendered_bash_command, {'--requests': str})
+            assert getattr(opt, 'requests') == DEFAULT_JUDGE_CONTAINER_REQUESTS
+
+        def test_should_be_able_to_override_container_requests(self, dag, airflow_context, dag_run):
+            container_requests = 'cpu=123m,memory=123Mi'
+            dag_run.conf = {
+                **DEFAULT_CONF,
+                'config': {
+                    'evaluate': {
+                        'container': {
+                            'requests': container_requests
+                        }
+                    }
+                }
+            }
+            rendered_bash_command = _create_and_render_evaluate_command(dag, airflow_context)
+            opt = parse_command_arg(rendered_bash_command, {'--requests': str})
+            assert getattr(opt, 'requests') == container_requests

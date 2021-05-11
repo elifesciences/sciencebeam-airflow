@@ -78,9 +78,16 @@ SCIENCEBEAM_CHARTS_COMMIT = $(shell bash -c 'source .env && echo $$SCIENCEBEAM_C
 FIELDS =
 MEASURES =
 SCORING_TYPE_OVERRIDES =
+SCIENCEBEAM_JUDGE_ARGS =
 
 WORKER_COUNT = 10
 REPLICA_COUNT = 0
+
+CONVERT_CONTAINER_REQUESTS = cpu=500m,memory=2048Mi
+CONVERT_CONTAINER_HIGHCPU = false
+
+JUDGE_CONTAINER_REQUESTS = cpu=1500m,memory=4096Mi
+JUDGE_CONTAINER_HIGHCPU = false
 
 ARGS =
 
@@ -309,12 +316,21 @@ trigger-helm-version:
 		"config": { \
 			"convert": { \
 				"worker_count": "$(WORKER_COUNT)", \
-				"replica_count": "$(REPLICA_COUNT)" \
+				"replica_count": "$(REPLICA_COUNT)", \
+				"container": { \
+					"requests": "$(CONVERT_CONTAINER_REQUESTS)", \
+					"highcpu": $(CONVERT_CONTAINER_HIGHCPU) \
+				} \
 			}, \
 			"evaluate": { \
 				"fields": "$(FIELDS)", \
 				"measures": "$(MEASURES)", \
-				"scoring_type_overrides": "$(SCORING_TYPE_OVERRIDES)" \
+				"scoring_type_overrides": "$(SCORING_TYPE_OVERRIDES)", \
+				"sciencebeam_judge_args": "$(SCIENCEBEAM_JUDGE_ARGS)", \
+				"container": { \
+					"requests": "$(JUDGE_CONTAINER_REQUESTS)", \
+					"highcpu": $(JUDGE_CONTAINER_HIGHCPU) \
+				} \
 			} \
 		}, \
 		"model_name": "$(MODEL_NAME)", \

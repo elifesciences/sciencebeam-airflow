@@ -1,22 +1,22 @@
 from airflow.operators.bash import BashOperator
 from airflow.models import DAG
 
-from sciencebeam_dag_ids import ScienceBeamDagIds
+from sciencebeam_airflow.utils.airflow import add_dag_macro
+from sciencebeam_airflow.utils.container_operators import ContainerRunOperator
 
-from sciencebeam_dag_utils import (
+from sciencebeam_airflow.dags.dag_ids import ScienceBeamDagIds
+
+from sciencebeam_airflow.dags.utils import (
     get_default_args,
-    add_dag_macro,
     create_trigger_next_task_dag_operator
 )
 
-from grobid_train_utils import (
+from sciencebeam_airflow.dags.grobid_train_utils import (
     get_grobid_trainer_image,
     get_grobid_trainer_tools_image,
     create_grobid_train_validate_config_operation,
     DEFAULT_GROBID_TRAIN_FIELDS
 )
-
-from container_operators import ContainerRunOperator
 
 
 DEFAULT_ARGS = get_default_args()
