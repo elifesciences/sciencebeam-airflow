@@ -2,6 +2,6 @@ gcloud==0.18.3
 google-api-python-client==2.9.0
 google-cloud-storage==1.38.0
 kubernetes==12.0.1
-psycopg2-binary==2.8.6
+psycopg2-binary==2.9.1
 redis==3.5.3
 six==1.16.0
