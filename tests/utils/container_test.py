@@ -65,7 +65,7 @@ class TestGetContainerRunCommand:
             requests='requests1'
         )
         args = parse_command_arg(command, {'--requests': str})
-        assert args.requests == 'requests1'
+        assert args.requests == 'requests1'  # pylint: disable=no-member
 
     def test_should_add_prefer_preemptible(self):
         command = get_container_run_command(
@@ -76,7 +76,7 @@ class TestGetContainerRunCommand:
             prefer_preemptible=True
         )
         args = parse_command_arg(command, {'--overrides': str})
-        assert args.overrides == _get_prefer_preemptible_json()
+        assert args.overrides == _get_prefer_preemptible_json()  # pylint: disable=no-member
 
     def test_should_add_select_preemptible(self):
         command = get_container_run_command(
@@ -87,7 +87,7 @@ class TestGetContainerRunCommand:
             preemptible=True
         )
         args = parse_command_arg(command, {'--overrides': str})
-        assert args.overrides == _get_select_preemptible_json()
+        assert args.overrides == _get_select_preemptible_json()  # pylint: disable=no-member
 
     def test_should_add_highcpu_spec(self):
         container_requests = 'cpu=123m,memory=123Mi'
@@ -100,5 +100,5 @@ class TestGetContainerRunCommand:
             requests=container_requests
         )
         args = parse_command_arg(command, {'--overrides': str, '--requests': str})
-        assert args.overrides == _get_highcpu_json()
-        assert args.requests == container_requests
+        assert args.overrides == _get_highcpu_json()  # pylint: disable=no-member
+        assert args.requests == container_requests  # pylint: disable=no-member
