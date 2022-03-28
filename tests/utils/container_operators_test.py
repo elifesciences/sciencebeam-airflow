@@ -23,7 +23,7 @@ class TestContainerRunOperator:
         )
         rendered_bash_command = create_and_render_command(operator, airflow_context)
         args = parse_command_arg(rendered_bash_command, {'--requests': str})
-        assert args.requests == container_requests
+        assert args.requests == container_requests  # pylint: disable=no-member
 
     def test_should_allow_requests_expression(
         self, dag, airflow_context, dag_run
@@ -43,7 +43,7 @@ class TestContainerRunOperator:
         )
         rendered_bash_command = create_and_render_command(operator, airflow_context)
         args = parse_command_arg(rendered_bash_command, {'--requests': str})
-        assert args.requests == container_requests
+        assert args.requests == container_requests  # pylint: disable=no-member
 
     @pytest.mark.parametrize("preemptible", [False, True])
     def test_should_allow_preemptible_expression(
@@ -65,9 +65,9 @@ class TestContainerRunOperator:
         rendered_bash_command = create_and_render_command(operator, airflow_context)
         args = parse_command_arg(rendered_bash_command, {'--overrides': str})
         if preemptible:
-            assert args.overrides == _get_select_preemptible_json()
+            assert args.overrides == _get_select_preemptible_json()  # pylint: disable=no-member
         else:
-            assert args.overrides is None
+            assert args.overrides is None  # pylint: disable=no-member
 
     @pytest.mark.parametrize("highcpu", [False, True])
     def test_should_allow_highcpu_expression(
@@ -92,6 +92,6 @@ class TestContainerRunOperator:
         rendered_bash_command = create_and_render_command(operator, airflow_context)
         args = parse_command_arg(rendered_bash_command, {'--overrides': str})
         if highcpu:
-            assert args.overrides == _get_highcpu_json()
+            assert args.overrides == _get_highcpu_json()  # pylint: disable=no-member
         else:
-            assert args.overrides is None
+            assert args.overrides is None  # pylint: disable=no-member
