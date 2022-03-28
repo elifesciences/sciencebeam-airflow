@@ -183,7 +183,7 @@ class TestScienceBeamEvaluate:
             }
             rendered_bash_command = _create_and_render_evaluate_command(dag, airflow_context)
             opt = parse_command_arg(rendered_bash_command, {})
-            assert opt.remainder[-1:] == ['arg1']
+            assert opt.remainder[-1:] == ['arg1']  # pylint: disable=no-member
 
         def test_should_use_default_container_requests(self, dag, airflow_context, dag_run):
             dag_run.conf = DEFAULT_CONF
